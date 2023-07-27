@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "isic-front",
+    "isic-back",
+    "isic-cli"
+]
