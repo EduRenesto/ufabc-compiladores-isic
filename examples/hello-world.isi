@@ -1,0 +1,7 @@
+programa
+    declare a: int.
+    a := 123.
+
+    escreva("Hello world").
+    escreva(a).
+fimprog.

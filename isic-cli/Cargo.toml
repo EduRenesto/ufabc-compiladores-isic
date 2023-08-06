@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+isic-front = { path="../isic-front" }
+isic-back = { path="../isic-back" }
+
+clap = { version="4.3", features=["derive"] }
+chic = "1.2"

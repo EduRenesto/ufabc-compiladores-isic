@@ -1,7 +1,7 @@
 use crate::ast;
 
 peg::parser!{
-    grammar isilang_parser() for str {
+    pub grammar isilang_parser() for str {
         pub rule num() -> ast::IntLiteral
             = n:$(['0'..='9']+) {
                 ? n.parse().map(|n| ast::IntLiteral(n)).or(Err("u64"))
@@ -13,7 +13,7 @@ peg::parser!{
             }
 
         pub rule text() -> ast::StringLiteral
-            = "\"" t:$(['a'..='z' | 'A'..='Z' | '0'..='9']+) "\"" {
+            = "\"" t:$(['a'..='z' | 'A'..='Z' | '0'..='9' | ' ']+) "\"" {
                 ast::StringLiteral(String::from(t))
             }
 
@@ -69,7 +69,7 @@ peg::parser!{
                 ast::IsiProgram::new(stmts)
             };
 
-        rule ws() = ([' ' | '\n' | '\t'])*
+        rule ws() = quiet!{ ([' ' | '\n' | '\t'])* }
     }
 }
 
@@ -211,11 +211,12 @@ mod test {
     fn parse_program_ok() {
         let input = r"
             programa
+                escreva(foo).
+
                 declare foo: int.
                 declare bar: string.
 
                 foo := 123.
-                escreva(foo).
             fimprog.
         ";
 
