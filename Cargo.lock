@@ -175,6 +175,9 @@ dependencies = [
 [[package]]
 name = "isic-back"
 version = "0.1.0"
+dependencies = [
+ "isic-front",
+]
 
 [[package]]
 name = "isic-cli"
