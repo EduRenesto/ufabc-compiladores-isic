@@ -2,6 +2,7 @@ use std::io::Read;
 use std::{path::PathBuf, error::Error, fs::File};
 
 use clap::Parser;
+use isic_back::cemitter::CEmitter;
 
 #[derive(Parser)]
 #[command()]
@@ -33,7 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = CliArgs::parse();
 
     let mut input  = File::open(&args.input_file)?;
-    let mut _output = File::create(&args.get_output_file())?;
+    let mut output = File::create(&args.get_output_file())?;
 
     let mut input_text = String::new();
     input.read_to_string(&mut input_text)?;
@@ -42,7 +43,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match parse_result {
         Ok(ast) => {
-            println!("{:?}", ast);
+            let emitter = CEmitter::new(&ast, &mut output);
+
+            emitter.emit().unwrap();
         },
         Err(e) => {
             // TODO: add expected tokens

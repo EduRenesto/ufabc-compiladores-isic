@@ -6,7 +6,7 @@ pub struct IntLiteral(pub u64);
 #[derive(Debug, PartialEq, Eq)]
 pub struct StringLiteral(pub String);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Hash, Debug, PartialEq, Eq)]
 pub struct Ident(pub String);
 
 #[derive(Debug, PartialEq, Eq)]
@@ -45,6 +45,31 @@ pub enum Expr {
     ImmString(StringLiteral),
     BinExpr(BinaryOp, Box<Expr>, Box<Expr>),
     FnCall(FnCall),
+}
+
+impl Expr {
+    pub fn get_type(&self) -> Option<Ident> {
+        match self {
+            Expr::Ident(_) => None,
+            Expr::ImmInt(_) => Some(Ident("int".to_string())),
+            Expr::ImmString(_) => Some(Ident("string".to_string())),
+            Expr::BinExpr(op, _, _) => {
+                match op {
+                    BinaryOp::Add => Some(Ident("int".to_string())),
+                    BinaryOp::Sub => Some(Ident("int".to_string())),
+                    BinaryOp::Mul => Some(Ident("int".to_string())),
+                    BinaryOp::Div => Some(Ident("int".to_string())),
+                    BinaryOp::Gt  => Some(Ident("bool".to_string())),
+                    BinaryOp::Lt  => Some(Ident("bool".to_string())),
+                    BinaryOp::Geq => Some(Ident("bool".to_string())),
+                    BinaryOp::Leq => Some(Ident("bool".to_string())),
+                    BinaryOp::Eq  => Some(Ident("bool".to_string())),
+                    BinaryOp::Neq => Some(Ident("bool".to_string())),
+                }
+            },
+            Expr::FnCall(_) => None,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
