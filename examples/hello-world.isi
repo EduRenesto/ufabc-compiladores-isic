@@ -1,7 +1,12 @@
 programa
     declare a: int.
+    declare b: int.
     a := 123.
+
+    escreva("Digite um numero").
+    leia(b).
 
     escreva("Hello world").
     escreva(a).
+    escreva(b).
 fimprog.

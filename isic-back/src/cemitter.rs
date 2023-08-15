@@ -49,6 +49,78 @@ impl<'a, W: Write> CEmitter<'a, W> {
     fn write_footers(&mut self) {
         writeln!(self.output, "}}").unwrap();
     }
+
+    fn emit_print(&mut self, call: &isic_front::ast::FnCall) {
+        // TODO(edu): handle the case where the argument
+        // is not an ident or an immediate.
+
+        let arg = &call.args[0];
+
+        match arg {
+            Expr::Ident(ref ident) => {
+                let sym = self.sym_table.get(ident);
+
+                if sym.is_none() {
+                    self.errors.push(IsiError {
+                        span: Span { start: 0, end: 0 },
+                        msg: format!("Use of undeclared variable {}", ident.0),
+                    });
+
+                    return;
+                }
+
+                let sym = sym.unwrap();
+
+                let fmt = match sym.ty.0.as_str() {
+                    "int"    => "%d",
+                    "string" => "%s",
+                    _        => todo!(),
+                };
+
+                writeln!(self.output, "    printf(\"{}\\n\", {});", fmt, ident.0).unwrap();
+            },
+            Expr::ImmInt(ref imm) => {
+                writeln!(self.output, "    printf(\"%d\\n\", {});", imm.0).unwrap();
+            },
+            Expr::ImmString(ref imm) => {
+                writeln!(self.output, "    printf(\"{}\\n\");", imm.0).unwrap();
+            },
+            _ => todo!()
+        }
+    }
+
+    fn emit_scan(&mut self, call: &isic_front::ast::FnCall) {
+        // TODO(edu): C shenanigans, precisamos mallocar e depois
+        // freear no caso de ser uma string...
+
+        let arg = &call.args[0];
+
+        match arg {
+            Expr::Ident(ref ident) => {
+                let sym = self.sym_table.get(ident);
+
+                if sym.is_none() {
+                    self.errors.push(IsiError {
+                        span: Span { start: 0, end: 0 },
+                        msg: format!("Use of undeclared variable {}", ident.0),
+                    });
+
+                    return;
+                }
+
+                let sym = sym.unwrap();
+
+                let fmt = match sym.ty.0.as_str() {
+                    "int"    => "%d",
+                    "string" => "%s",
+                    _        => todo!(),
+                };
+
+                writeln!(self.output, "    scanf(\"{}\\n\", &{});", fmt, ident.0).unwrap();
+            },
+            _ => todo!()
+        }
+    }
 }
 
 impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
@@ -97,7 +169,11 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     }
 
     fn visit_fn_call(&mut self, call: &isic_front::ast::FnCall) {
-        return;
+        match call.fname.0.as_str() {
+            "escreva" => self.emit_print(call),
+            "leia"    => self.emit_scan(call),
+            _         => todo!(),
+        }
     }
 
     fn visit_assignment(&mut self, assignment: &isic_front::ast::Assignment) {

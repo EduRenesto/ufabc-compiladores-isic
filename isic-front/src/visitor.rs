@@ -30,7 +30,7 @@ pub trait IsiVisitor {
             Expr::ImmInt(imm) => self.visit_int_literal(imm),
             Expr::ImmString(imm) => self.visit_string_literal(imm),
             Expr::BinExpr(_, _, _) => todo!(),
-            Expr::FnCall(_fcall) => todo!(),
+            Expr::FnCall(call) => self.visit_fn_call(call),
         }
     }
 
