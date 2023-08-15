@@ -73,6 +73,13 @@ impl Expr {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub enum ArithExpr {
+    ImmInt(IntLiteral),
+    Ident(Ident),
+    Rec(BinaryOp, Box<ArithExpr>, Box<ArithExpr>),
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub struct FnCall {
     pub fname: Ident,
     pub args: Vec<Expr>,
