@@ -1,10 +1,16 @@
 programa
     declare a: int.
     declare b: int.
+    declare c: int.
+    declare d: int.
+
     a := 123.
+    c := 666.
 
     escreva("Digite um numero").
     leia(b).
+
+    d := a * b + c * 10.
 
     escreva("Hello world").
     escreva(a).

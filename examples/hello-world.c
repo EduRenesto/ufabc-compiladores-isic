@@ -5,10 +5,9 @@
 int main() {
     int a;
     int b;
+    int c;
+    int d;
     a = 123;
+    c = 666;
     printf("Digite um numero\n");
     scanf("%d\n", &b);
-    printf("Hello world\n");
-    printf("%d\n", a);
-    printf("%d\n", b);
-}

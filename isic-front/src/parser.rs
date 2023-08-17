@@ -35,35 +35,27 @@ peg::parser!{
             / "==" { ast::BinaryOp::Eq }
             / "!=" { ast::BinaryOp::Neq }
 
-        pub rule expr() -> ast::Expr
-            = id:ident() { ast::Expr::Ident(id) }
-            / n:num() { ast::Expr::ImmInt(n) }
-            / t:text() { ast::Expr::ImmString(t) }
-            // / lhs:ident() ws() op:binop() ws() rhs:expr() { ast::Expr::BinExpr(op, Box::new(ast::Expr::Ident(lhs)), Box::new(rhs)) }
-            // TODO: binary ops
-            // / lhs:expr() ws() op:binop() ws() rhs:expr() {
-            //     ast::Expr::BinExpr(
-            //         op,
-            //         Box::new(lhs),
-            //         Box::new(rhs),
-            //     )
-            // }
+        //pub rule expr() -> ast::Expr
+        //    = id:ident() { ast::Expr::Ident(id) }
+        //    / n:num() { ast::Expr::ImmInt(n) }
+        //    / t:text() { ast::Expr::ImmString(t) }
 
-        rule arith_operand() -> ast::ArithExpr
-            = n:num() { ast::ArithExpr::ImmInt(n) }
-            / id:ident() { ast::ArithExpr::Ident(id) }
+        //rule arith_operand() -> ast::ArithExpr
+        //    = n:num() { ast::ArithExpr::ImmInt(n) }
+        //    / id:ident() { ast::ArithExpr::Ident(id) }
 
-        pub rule arith_expr() -> ast::ArithExpr = precedence!{
-            lhs:(@) ws() "+" ws() rhs:@ { ast::ArithExpr::Rec(ast::BinaryOp::Add, Box::new(lhs), Box::new(rhs)) }
-            lhs:(@) ws() "-" ws() rhs:@ { ast::ArithExpr::Rec(ast::BinaryOp::Sub, Box::new(lhs), Box::new(rhs)) }
+        pub rule expr() -> ast::Expr = precedence!{
+            lhs:(@) ws() "+" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Add, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "-" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Sub, Box::new(lhs), Box::new(rhs))) }
             --
-            lhs:(@) ws() "*" ws() rhs:@ { ast::ArithExpr::Rec(ast::BinaryOp::Mul, Box::new(lhs), Box::new(rhs)) }
-            lhs:(@) ws() "/" ws() rhs:@ { ast::ArithExpr::Rec(ast::BinaryOp::Div, Box::new(lhs), Box::new(rhs)) }
+            lhs:(@) ws() "*" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Mul, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "/" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Div, Box::new(lhs), Box::new(rhs))) }
             --
-            n:num() { ast::ArithExpr::ImmInt(n) }
-            id:ident() { ast::ArithExpr::Ident(id) }
+            n:num() { ast::Expr::ImmInt(n) }
+            t:text() { ast::Expr::ImmString(t) }
+            id:ident() { ast::Expr::Ident(id) }
             --
-            "(" ws() expr:arith_expr() ws() ")" { expr }
+            "(" ws() e:expr() ws() ")" { e }
         }
 
         pub rule fncall() -> ast::FnCall
@@ -178,21 +170,21 @@ mod test {
     }
 
     #[test]
-    fn parse_arith_expr_ok() {
+    fn parse_expr_arith_ok() {
         let input = r#"foo * 1 + 3 / bar"#;
-        let ret = isilang_parser::arith_expr(&input);
+        let ret = isilang_parser::expr(&input);
 
-        let expected = ast::ArithExpr::Rec(
+        let expected = ast::Expr::BinExpr(
             ast::BinaryOp::Add,
-            Box::new(ast::ArithExpr::Rec(
+            Box::new(ast::Expr::BinExpr(
                 ast::BinaryOp::Mul,
-                Box::new(ast::ArithExpr::Ident(ast::Ident("foo".to_string()))),
-                Box::new(ast::ArithExpr::ImmInt(ast::IntLiteral(1))),
+                Box::new(ast::Expr::Ident(ast::Ident("foo".to_string()))),
+                Box::new(ast::Expr::ImmInt(ast::IntLiteral(1))),
             )),
-            Box::new(ast::ArithExpr::Rec(
+            Box::new(ast::Expr::BinExpr(
                 ast::BinaryOp::Div,
-                Box::new(ast::ArithExpr::ImmInt(ast::IntLiteral(3))),
-                Box::new(ast::ArithExpr::Ident(ast::Ident("bar".to_string()))),
+                Box::new(ast::Expr::ImmInt(ast::IntLiteral(3))),
+                Box::new(ast::Expr::Ident(ast::Ident("bar".to_string()))),
             )),
         );
 
@@ -245,10 +237,10 @@ mod test {
         let ret = isilang_parser::program(&input);
 
         let expected = ast::IsiProgram::new(vec![
+            ast::Statement::FnCall(ast::FnCall::new(ast::Ident("escreva".to_string()), vec![ast::Expr::Ident(ast::Ident("foo".to_string()))])),
             ast::Statement::Decl(ast::VarDecl::new(ast::Ident("foo".to_string()), ast::Ident("int".to_string()))),
             ast::Statement::Decl(ast::VarDecl::new(ast::Ident("bar".to_string()), ast::Ident("string".to_string()))),
             ast::Statement::Assignment(ast::Assignment::new(ast::Ident("foo".to_string()), ast::Expr::ImmInt(ast::IntLiteral(123)))),
-            ast::Statement::FnCall(ast::FnCall::new(ast::Ident("escreva".to_string()), vec![ast::Expr::Ident(ast::Ident("foo".to_string()))])),
         ]);
 
         assert_eq!(ret, Ok(expected));

@@ -24,12 +24,14 @@ pub trait IsiVisitor {
 
     fn visit_decl(&mut self, decl: &VarDecl);
 
+    fn visit_bin_expr(&mut self, bexpr: &BinExpr);
+
     fn visit_expr(&mut self, expr: &Expr) {
         match expr {
             Expr::Ident(ident) => self.visit_ident(ident),
             Expr::ImmInt(imm) => self.visit_int_literal(imm),
             Expr::ImmString(imm) => self.visit_string_literal(imm),
-            Expr::BinExpr(_, _, _) => todo!(),
+            Expr::BinExpr(bexp) => self.visit_bin_expr(bexp),
             Expr::FnCall(call) => self.visit_fn_call(call),
         }
     }

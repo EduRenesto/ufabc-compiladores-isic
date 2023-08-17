@@ -39,11 +39,14 @@ pub enum BinaryOp {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub struct BinExpr(pub BinaryOp, pub Box<Expr>, pub Box<Expr>);
+
+#[derive(Debug, PartialEq, Eq)]
 pub enum Expr {
     Ident(Ident),
     ImmInt(IntLiteral),
     ImmString(StringLiteral),
-    BinExpr(BinaryOp, Box<Expr>, Box<Expr>),
+    BinExpr(BinExpr),
     FnCall(FnCall),
 }
 
@@ -53,30 +56,19 @@ impl Expr {
             Expr::Ident(_) => None,
             Expr::ImmInt(_) => Some(Ident("int".to_string())),
             Expr::ImmString(_) => Some(Ident("string".to_string())),
-            Expr::BinExpr(op, _, _) => {
-                match op {
-                    BinaryOp::Add => Some(Ident("int".to_string())),
-                    BinaryOp::Sub => Some(Ident("int".to_string())),
-                    BinaryOp::Mul => Some(Ident("int".to_string())),
-                    BinaryOp::Div => Some(Ident("int".to_string())),
-                    BinaryOp::Gt  => Some(Ident("bool".to_string())),
-                    BinaryOp::Lt  => Some(Ident("bool".to_string())),
-                    BinaryOp::Geq => Some(Ident("bool".to_string())),
-                    BinaryOp::Leq => Some(Ident("bool".to_string())),
-                    BinaryOp::Eq  => Some(Ident("bool".to_string())),
-                    BinaryOp::Neq => Some(Ident("bool".to_string())),
+            Expr::BinExpr(BinExpr( _, lhs, rhs )) => {
+                let lhs_ty = dbg!( lhs.get_type() );
+                let rhs_ty = dbg!( rhs.get_type() );
+
+                if lhs_ty == rhs_ty {
+                    lhs_ty
+                } else {
+                    None
                 }
             },
             Expr::FnCall(_) => None,
         }
     }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum ArithExpr {
-    ImmInt(IntLiteral),
-    Ident(Ident),
-    Rec(BinaryOp, Box<ArithExpr>, Box<ArithExpr>),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -137,3 +129,4 @@ impl_visitable!(Expr, visit_expr);
 impl_visitable!(FnCall, visit_fn_call);
 impl_visitable!(Assignment, visit_assignment);
 impl_visitable!(Statement, visit_statement);
+impl_visitable!(BinExpr, visit_bin_expr);

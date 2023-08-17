@@ -235,4 +235,29 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
 
         writeln!(self.output, ";").unwrap();
     }
+
+    fn visit_bin_expr(&mut self, bexpr: &isic_front::ast::BinExpr) {
+        writeln!(self.output, "(").unwrap();
+
+        self.visit_expr(&bexpr.1);
+
+        let op = match bexpr.0 {
+            isic_front::ast::BinaryOp::Add => "+",
+            isic_front::ast::BinaryOp::Sub => "-",
+            isic_front::ast::BinaryOp::Mul => "*",
+            isic_front::ast::BinaryOp::Div => "/",
+            isic_front::ast::BinaryOp::Gt  => ">",
+            isic_front::ast::BinaryOp::Lt  => "<",
+            isic_front::ast::BinaryOp::Geq => ">=",
+            isic_front::ast::BinaryOp::Leq => "<=",
+            isic_front::ast::BinaryOp::Eq  => "==",
+            isic_front::ast::BinaryOp::Neq => "!=",
+        };
+
+        writeln!(self.output, " {} ", op).unwrap();
+
+        self.visit_expr(&bexpr.2);
+
+        writeln!(self.output, ")").unwrap();
+    }
 }
