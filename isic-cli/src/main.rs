@@ -45,12 +45,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     match parse_result {
         Ok(ast) => {
             //let emitter = CEmitter::new(&ast, &mut output);
-
             //emitter.emit().unwrap();
 
             let mut checker = TypeCk::new(&ast);
-
             checker.check().unwrap();
+
+            let emitter = CEmitter::new(&ast, &checker.sym_table, &mut output);
+            emitter.emit().unwrap();
         },
         Err(e) => {
             // TODO: add expected tokens

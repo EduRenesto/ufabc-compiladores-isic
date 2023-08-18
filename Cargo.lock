@@ -177,6 +177,7 @@ name = "isic-back"
 version = "0.1.0"
 dependencies = [
  "isic-front",
+ "isic-middle",
 ]
 
 [[package]]

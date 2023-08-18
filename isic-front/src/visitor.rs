@@ -50,11 +50,13 @@ pub trait IsiVisitor {
         }
     }
 
-    fn visit_program(&mut self, program: &IsiProgram) -> Self::Ret {
+    fn visit_program(&mut self, program: &IsiProgram) -> Vec<Self::Ret> {
+        let mut ret = vec![];
+
         for stmt in &program.statements {
-            stmt.visit(self);
+            ret.push(self.visit_statement(stmt));
         }
 
-        todo!()
+        ret
     }
 }

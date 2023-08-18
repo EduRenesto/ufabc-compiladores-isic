@@ -11,9 +11,9 @@ pub enum IsiType {
 }
 
 pub struct SymbolInfo {
-    ty: IsiType,
-    declaration: Span,
-    used: bool,
+    pub ty: IsiType,
+    pub declaration: Span,
+    pub used: bool,
 }
 
 #[derive(Debug)]
@@ -24,7 +24,7 @@ pub struct CheckError {
 
 pub struct TypeCk<'a> {
     program: &'a IsiProgram,
-    sym_table: HashMap<Ident, SymbolInfo>,
+    pub sym_table: HashMap<Ident, SymbolInfo>,
 }
 
 impl<'a> TypeCk<'a> {
@@ -35,10 +35,20 @@ impl<'a> TypeCk<'a> {
         }
     }
 
-    pub fn check(&mut self) -> Result<(), CheckError> {
-        self.visit_program(self.program)?;
+    pub fn check(&mut self) -> Result<(), Vec<CheckError>> {
+        let prog = self.visit_program(self.program);
 
-        Ok(())
+        let mut ret = vec![];
+
+        for err in prog.into_iter().filter(|r| r.is_err()) {
+            ret.push(err.unwrap_err());
+        }
+
+        if ret.is_empty() {
+            Ok(())
+        } else {
+            Err(ret)
+        }
     }
 }
 
@@ -140,13 +150,5 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         }
 
         Ok(left)
-    }
-
-    fn visit_program(&mut self, program: &IsiProgram) -> Self::Ret {
-        for stmt in &program.statements {
-            self.visit_statement(stmt)?;
-        }
-
-        Ok(IsiType::Unit)
     }
 }

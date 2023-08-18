@@ -7,10 +7,6 @@ programa
     a := 123.
     c := 666.
 
-    declare foo: string.
-
-    foo := a + b.
-
     escreva("Digite um numero").
     leia(b).
 

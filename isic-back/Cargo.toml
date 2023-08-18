@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 isic-front = { path="../isic-front" }
+isic-middle = { path="../isic-middle" }
