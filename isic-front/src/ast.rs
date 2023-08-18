@@ -1,4 +1,9 @@
-use crate::{visitor::{Visitable, IsiVisitor}, impl_visitable};
+use crate::{visitor::{Visitable, IsiVisitor}, impl_visitable, span::Span};
+
+pub struct Spanned<T: std::fmt::Debug + PartialEq + Eq> {
+    pub span: Span,
+    pub node: T,
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct IntLiteral(pub u64);

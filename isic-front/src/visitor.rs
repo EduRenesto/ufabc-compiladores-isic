@@ -16,17 +16,19 @@ pub trait Visitable {
 }
 
 pub trait IsiVisitor {
-    fn visit_int_literal(&mut self, lit: &IntLiteral);
+    type Ret;
 
-    fn visit_string_literal(&mut self, lit: &StringLiteral);
+    fn visit_int_literal(&mut self, lit: &IntLiteral) -> Self::Ret;
 
-    fn visit_ident(&mut self, id: &Ident);
+    fn visit_string_literal(&mut self, lit: &StringLiteral) -> Self::Ret;
 
-    fn visit_decl(&mut self, decl: &VarDecl);
+    fn visit_ident(&mut self, id: &Ident) -> Self::Ret;
 
-    fn visit_bin_expr(&mut self, bexpr: &BinExpr);
+    fn visit_decl(&mut self, decl: &VarDecl) -> Self::Ret;
 
-    fn visit_expr(&mut self, expr: &Expr) {
+    fn visit_bin_expr(&mut self, bexpr: &BinExpr) -> Self::Ret;
+
+    fn visit_expr(&mut self, expr: &Expr) -> Self::Ret {
         match expr {
             Expr::Ident(ident) => self.visit_ident(ident),
             Expr::ImmInt(imm) => self.visit_int_literal(imm),
@@ -36,11 +38,11 @@ pub trait IsiVisitor {
         }
     }
 
-    fn visit_fn_call(&mut self, call: &FnCall);
+    fn visit_fn_call(&mut self, call: &FnCall) -> Self::Ret;
 
-    fn visit_assignment(&mut self, assignment: &Assignment);
+    fn visit_assignment(&mut self, assignment: &Assignment) -> Self::Ret;
 
-    fn visit_statement(&mut self, stmt: &Statement) {
+    fn visit_statement(&mut self, stmt: &Statement) -> Self::Ret {
         match stmt {
             Statement::Assignment(ass) => self.visit_assignment(ass),
             Statement::Decl(decl)      => self.visit_decl(decl),
@@ -48,9 +50,11 @@ pub trait IsiVisitor {
         }
     }
 
-    fn visit_program(&mut self, program: &IsiProgram) {
+    fn visit_program(&mut self, program: &IsiProgram) -> Self::Ret {
         for stmt in &program.statements {
             stmt.visit(self);
         }
+
+        todo!()
     }
 }

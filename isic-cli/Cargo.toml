@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 isic-front = { path="../isic-front" }
 isic-back = { path="../isic-back" }
+isic-middle = { path="../isic-middle" }
 
 clap = { version="4.3", features=["derive"] }
 chic = "1.2"

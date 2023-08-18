@@ -124,6 +124,8 @@ impl<'a, W: Write> CEmitter<'a, W> {
 }
 
 impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
+    type Ret = ();
+
     fn visit_int_literal(&mut self, lit: &isic_front::ast::IntLiteral) {
         write!(self.output, "{}", lit.0).unwrap();
         return;

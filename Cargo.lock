@@ -187,6 +187,7 @@ dependencies = [
  "clap",
  "isic-back",
  "isic-front",
+ "isic-middle",
 ]
 
 [[package]]
@@ -199,6 +200,9 @@ dependencies = [
 [[package]]
 name = "isic-middle"
 version = "0.1.0"
+dependencies = [
+ "isic-front",
+]
 
 [[package]]
 name = "libc"

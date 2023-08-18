@@ -3,6 +3,7 @@ use std::{path::PathBuf, error::Error, fs::File};
 
 use clap::Parser;
 use isic_back::cemitter::CEmitter;
+use isic_middle::typeck::TypeCk;
 
 #[derive(Parser)]
 #[command()]
@@ -43,9 +44,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match parse_result {
         Ok(ast) => {
-            let emitter = CEmitter::new(&ast, &mut output);
+            //let emitter = CEmitter::new(&ast, &mut output);
 
-            emitter.emit().unwrap();
+            //emitter.emit().unwrap();
+
+            let mut checker = TypeCk::new(&ast);
+
+            checker.check().unwrap();
         },
         Err(e) => {
             // TODO: add expected tokens

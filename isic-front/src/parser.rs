@@ -1,7 +1,13 @@
 use crate::ast;
+use crate::span::Span;
 
 peg::parser!{
     pub grammar isilang_parser() for str {
+        rule spanned<T>(r: rule<T>) -> (T, Span)
+            = start:position!() x:r() end:position!() {
+                (x, Span { start, end })
+            }
+
         pub rule num() -> ast::IntLiteral
             = n:$(['0'..='9']+) {
                 ? n.parse().map(|n| ast::IntLiteral(n)).or(Err("u64"))
