@@ -23,11 +23,11 @@ const sampleText = `programa
     escreva(c).
 fimprog.`;
 
-const EXAMPLES = {
-    "hello-world": `programa
+const HELLO_WORLD = `programa
     escreva("Hello world").
-fimprog.`,
-    "io": `programa
+fimprog.`;
+
+const IO = `programa
     declare a: int.
     declare b: int.
 
@@ -39,8 +39,9 @@ fimprog.`,
 
     escreva(c).
 fimprog.
-`,
-    "fibonacci": `programa
+`;
+
+const FIBONACCI = `programa
     declare n: int.
     leia(n).
 
@@ -65,9 +66,16 @@ fimprog.
         i := i + 1.
     }
 fimprog.
-`,
-    "collatz": `TODO`,
-}
+`;
+
+const COLLATZ = `TODO`;
+
+const EXAMPLES = new Map([
+    ["hello-world", HELLO_WORLD],
+    ["io", IO],
+    ["fibonacci", FIBONACCI],
+    ["collatz", COLLATZ],
+]);
 
 export type EditorProps = {
     onCompile: (text: string) => void;
@@ -75,8 +83,8 @@ export type EditorProps = {
 };
 
 export const EditorWindow: React.FC<EditorProps> = (props: EditorProps) => {
-    const [text, setText] = useState(sampleText);
     const [example, setExample] = useState<string>("hello-world");
+    const [text, setText] = useState(EXAMPLES.get("hello-world"));
 
     return (
         <Window title="playground.isi - Editor">
@@ -88,7 +96,7 @@ export const EditorWindow: React.FC<EditorProps> = (props: EditorProps) => {
                     <option value="fibonacci">Fibonacci</option>
                     <option value="conditional">Conditionals</option>
                 </Select>
-                <Button onClick={() => setText(EXAMPLES[example])}>Load example</Button>
+                <Button onClick={() => setText(EXAMPLES.get(example))}>Load example</Button>
             </ButtonsWrapper>
 
             <AceEditor
