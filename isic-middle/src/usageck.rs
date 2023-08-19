@@ -137,6 +137,8 @@ impl<'a> IsiVisitor for UsageCk<'a> {
         let span = assignment.get_span();
 
         self.mark_assigment(&assignment.ident, span);
+
+        self.visit_expr(&assignment.val);
     }
 
     fn visit_conditional(&mut self, conditional: &isic_front::ast::Conditional) -> Self::Ret {
