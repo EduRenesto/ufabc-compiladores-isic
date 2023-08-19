@@ -42,6 +42,7 @@ jobs:
       - name: Build distribution
         run: |
           pushd isic-playground
+          yarn install
           yarn build
           popd
 
