@@ -5,6 +5,7 @@ use isic_front::{ast::{IsiProgram, Ident, BinaryOp}, span::Span, visitor::{IsiVi
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum IsiType {
     Int,
+    Float,
     String,
     Bool,
     Unit,
@@ -59,6 +60,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         Ok(IsiType::Int)
     }
 
+    fn visit_float_literal(&mut self, _lit: &isic_front::ast::FloatLiteral) -> Self::Ret {
+        Ok(IsiType::Float)
+    }
+
     fn visit_string_literal(&mut self, _lit: &isic_front::ast::StringLiteral) -> Self::Ret {
         Ok(IsiType::String)
     }
@@ -84,7 +89,8 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         }
 
         let ty = match decl.var_type.0.as_str() {
-            "int" => Ok(IsiType::Int),
+            "int"    => Ok(IsiType::Int),
+            "float"  => Ok(IsiType::Float),
             "string" => Ok(IsiType::String),
             t@_      => Err(CheckError {
                 span,

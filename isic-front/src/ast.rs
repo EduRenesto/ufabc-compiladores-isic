@@ -8,6 +8,11 @@ pub struct Spanned<T: std::fmt::Debug + PartialEq + Eq> {
 #[derive(Debug, PartialEq, Eq)]
 pub struct IntLiteral(pub u64);
 
+#[derive(Debug, PartialEq)]
+pub struct FloatLiteral(pub f32);
+
+impl std::cmp::Eq for FloatLiteral {} // cheat...
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct StringLiteral(pub String);
 
@@ -50,6 +55,7 @@ pub struct BinExpr(pub BinaryOp, pub Box<Expr>, pub Box<Expr>);
 pub enum Expr {
     Ident(Ident),
     ImmInt(IntLiteral),
+    ImmFloat(FloatLiteral),
     ImmString(StringLiteral),
     BinExpr(BinExpr),
     FnCall(FnCall),
@@ -61,6 +67,7 @@ impl Expr {
             Expr::Ident(_) => None,
             Expr::ImmInt(_) => Some(Ident("int".to_string())),
             Expr::ImmString(_) => Some(Ident("string".to_string())),
+            Expr::ImmFloat(_) => Some(Ident("float".to_string())),
             Expr::BinExpr(BinExpr( _, lhs, rhs )) => {
                 let lhs_ty = dbg!( lhs.get_type() );
                 let rhs_ty = dbg!( rhs.get_type() );
@@ -149,6 +156,7 @@ impl IsiProgram {
 }
 
 impl_visitable!(IntLiteral, visit_int_literal);
+impl_visitable!(FloatLiteral, visit_float_literal);
 impl_visitable!(StringLiteral, visit_string_literal);
 impl_visitable!(Ident, visit_ident);
 impl_visitable!(VarDecl, visit_decl);

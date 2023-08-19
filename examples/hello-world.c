@@ -7,6 +7,8 @@ int main() {
     int b;
     int c;
     int d;
+    float f;
+    f = 100.3f;
     a = 123;
     c = 666;
     printf("Digite um numero\n");

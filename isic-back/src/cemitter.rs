@@ -61,6 +61,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
 
                 let fmt = match sym.ty {
                     IsiType::Int    => "%d",
+                    IsiType::Float  => "%f",
                     IsiType::String => "%s",
                     _               => todo!(),
                 };
@@ -69,6 +70,9 @@ impl<'a, W: Write> CEmitter<'a, W> {
             },
             Expr::ImmInt(ref imm) => {
                 writeln!(self.output, "    printf(\"%d\\n\", {});", imm.0).unwrap();
+            },
+            Expr::ImmFloat(ref imm) => {
+                writeln!(self.output, "    printf(\"%f\\n\", {});", imm.0).unwrap();
             },
             Expr::ImmString(ref imm) => {
                 writeln!(self.output, "    printf(\"{}\\n\");", imm.0).unwrap();
@@ -89,6 +93,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
 
                 let fmt = match sym.ty {
                     IsiType::Int    => "%d",
+                    IsiType::Float  => "%f",
                     IsiType::String => "%s",
                     _               => todo!(),
                 };
@@ -109,6 +114,12 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
         Ok(())
     }
 
+    fn visit_float_literal(&mut self, lit: &isic_front::ast::FloatLiteral) -> Result<(), CheckError> {
+        write!(self.output, "{}f", lit.0).unwrap();
+
+        Ok(())
+    }
+
     fn visit_string_literal(&mut self, lit: &isic_front::ast::StringLiteral) -> Result<(), CheckError> {
         write!(self.output, "{}", lit.0).unwrap();
 
@@ -124,6 +135,7 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     fn visit_decl(&mut self, decl: &isic_front::ast::VarDecl) -> Result<(), CheckError> {
         let ty = match self.sym_table.get(&decl.var_name).unwrap().ty {
             IsiType::Int    => "int",
+            IsiType::Float  => "float",
             IsiType::String => "char*",
             _               => todo!(),
         };

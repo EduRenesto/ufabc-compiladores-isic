@@ -16,6 +16,11 @@ peg::parser!{
                 ? n.parse().map(|n| ast::IntLiteral(n)).or(Err("u64"))
             }
 
+        pub rule numf() -> ast::FloatLiteral
+            = n:$(['0'..='9']+ "," ['0'..='9']+) {
+                ? n.replace(",", ".").parse().map(|n| ast::FloatLiteral(n)).or(Err("f32"))
+            }
+
         pub rule ident() -> ast::Ident
             = id:$(['a'..='z' | 'A'..='Z']['a'..='z' | 'A'..='Z' | '0'..='9']*) {
                 ast::Ident(String::from(id))
@@ -69,6 +74,7 @@ peg::parser!{
             lhs:(@) ws() "==" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Eq, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "!=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Neq, Box::new(lhs), Box::new(rhs))) }
             --
+            f:numf() { ast::Expr::ImmFloat(f) }
             n:num() { ast::Expr::ImmInt(n) }
             t:text() { ast::Expr::ImmString(t) }
             id:ident() { ast::Expr::Ident(id) }

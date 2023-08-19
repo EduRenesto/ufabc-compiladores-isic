@@ -4,6 +4,9 @@ programa
     declare c: int.
     declare d: int.
 
+    declare f: float.
+    f := 100,3.
+
     a := 123.
     c := 666.
 

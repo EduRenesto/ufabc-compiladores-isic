@@ -20,6 +20,8 @@ pub trait IsiVisitor {
 
     fn visit_int_literal(&mut self, lit: &IntLiteral) -> Self::Ret;
 
+    fn visit_float_literal(&mut self, lit: &FloatLiteral) -> Self::Ret;
+
     fn visit_string_literal(&mut self, lit: &StringLiteral) -> Self::Ret;
 
     fn visit_ident(&mut self, id: &Ident) -> Self::Ret;
@@ -32,6 +34,7 @@ pub trait IsiVisitor {
         match expr {
             Expr::Ident(ident) => self.visit_ident(ident),
             Expr::ImmInt(imm) => self.visit_int_literal(imm),
+            Expr::ImmFloat(imm) => self.visit_float_literal(imm),
             Expr::ImmString(imm) => self.visit_string_literal(imm),
             Expr::BinExpr(bexp) => self.visit_bin_expr(bexp),
             Expr::FnCall(call) => self.visit_fn_call(call),
