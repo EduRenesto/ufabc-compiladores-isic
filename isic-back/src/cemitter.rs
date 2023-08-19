@@ -179,4 +179,62 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
 
         Ok(())
     }
+
+    fn visit_conditional(&mut self, conditional: &isic_front::ast::Conditional) -> Self::Ret {
+        write!(self.output, "if (").unwrap();
+
+        self.visit_expr(&conditional.cond)?;
+
+        writeln!(self.output, ") {{").unwrap();
+
+        for stmt in &conditional.taken {
+            self.visit_statement(stmt)?;
+        }
+
+        writeln!(self.output, "}}").unwrap();
+
+        if !conditional.not_taken.is_empty() {
+            writeln!(self.output, "else {{").unwrap();
+
+            for stmt in &conditional.not_taken {
+                self.visit_statement(stmt)?;
+            }
+
+            writeln!(self.output, "}}").unwrap();
+        }
+
+        Ok(())
+    }
+
+    fn visit_while_loop(&mut self, while_loop: &isic_front::ast::WhileLoop) -> Self::Ret {
+        write!(self.output, "while (").unwrap();
+
+        self.visit_expr(&while_loop.cond)?;
+
+        writeln!(self.output, ") {{").unwrap();
+
+        for stmt in &while_loop.body {
+            self.visit_statement(stmt)?;
+        }
+
+        writeln!(self.output, "}}").unwrap();
+
+        Ok(())
+    }
+
+    fn visit_do_while_loop(&mut self, do_while_loop: &isic_front::ast::DoWhileLoop) -> Self::Ret {
+        writeln!(self.output, "do {{").unwrap();
+
+        for stmt in &do_while_loop.body {
+            self.visit_statement(stmt)?;
+        }
+
+        write!(self.output, "}} while (").unwrap();
+
+        self.visit_expr(&do_while_loop.cond)?;
+
+        writeln!(self.output, ");").unwrap();
+
+        Ok(())
+    }
 }

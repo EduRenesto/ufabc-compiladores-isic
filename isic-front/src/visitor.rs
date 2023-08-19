@@ -42,11 +42,20 @@ pub trait IsiVisitor {
 
     fn visit_assignment(&mut self, assignment: &Assignment) -> Self::Ret;
 
+    fn visit_conditional(&mut self, conditional: &Conditional) -> Self::Ret;
+
+    fn visit_while_loop(&mut self, while_loop: &WhileLoop) -> Self::Ret;
+
+    fn visit_do_while_loop(&mut self, do_while_loop: &DoWhileLoop) -> Self::Ret;
+
     fn visit_statement(&mut self, stmt: &Statement) -> Self::Ret {
         match stmt {
-            Statement::Assignment(ass) => self.visit_assignment(ass),
-            Statement::Decl(decl)      => self.visit_decl(decl),
-            Statement::FnCall(call)    => self.visit_fn_call(call),
+            Statement::Assignment(ass)   => self.visit_assignment(ass),
+            Statement::Decl(decl)        => self.visit_decl(decl),
+            Statement::FnCall(call)      => self.visit_fn_call(call),
+            Statement::Conditional(cond) => self.visit_conditional(cond),
+            Statement::WhileLoop(l)      => self.visit_while_loop(l),
+            Statement::DoWhileLoop(l)    => self.visit_do_while_loop(l),
         }
     }
 

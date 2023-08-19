@@ -107,10 +107,32 @@ impl Assignment {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub struct Conditional {
+    pub cond: Expr,
+    pub taken: Vec<Statement>,
+    pub not_taken: Vec<Statement>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct WhileLoop {
+    pub cond: Expr,
+    pub body: Vec<Statement>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct DoWhileLoop {
+    pub cond: Expr,
+    pub body: Vec<Statement>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub enum Statement {
     Decl(VarDecl),
     FnCall(FnCall),
     Assignment(Assignment),
+    Conditional(Conditional),
+    WhileLoop(WhileLoop),
+    DoWhileLoop(DoWhileLoop),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -133,5 +155,8 @@ impl_visitable!(VarDecl, visit_decl);
 impl_visitable!(Expr, visit_expr);
 impl_visitable!(FnCall, visit_fn_call);
 impl_visitable!(Assignment, visit_assignment);
+impl_visitable!(Conditional, visit_conditional);
+impl_visitable!(WhileLoop, visit_while_loop);
+impl_visitable!(DoWhileLoop, visit_do_while_loop);
 impl_visitable!(Statement, visit_statement);
 impl_visitable!(BinExpr, visit_bin_expr);

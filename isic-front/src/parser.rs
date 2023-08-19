@@ -3,9 +3,12 @@ use crate::span::Span;
 
 peg::parser!{
     pub grammar isilang_parser() for str {
-        rule spanned<T>(r: rule<T>) -> (T, Span)
+        rule spanned<T: std::fmt::Debug + PartialEq + Eq>(r: rule<T>) -> ast::Spanned<T>
             = start:position!() x:r() end:position!() {
-                (x, Span { start, end })
+                ast::Spanned {
+                    span: Span { start, end },
+                    node: x,
+                }
             }
 
         pub rule num() -> ast::IntLiteral
@@ -28,6 +31,8 @@ peg::parser!{
             = "declare " vname:(ident()) (" "?) ":" (" "?) vtype:(ident()) "." {
                 ast::VarDecl::new(vname, vtype)
             }
+
+        pub rule spanned_decl() -> ast::Spanned<ast::VarDecl> = spanned(<decl()>)
 
         pub rule binop() -> ast::BinaryOp
             = "+"  { ast::BinaryOp::Add }
@@ -57,6 +62,13 @@ peg::parser!{
             lhs:(@) ws() "*" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Mul, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "/" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Div, Box::new(lhs), Box::new(rhs))) }
             --
+            lhs:(@) ws() "<" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Lt, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() ">" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Gt, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "<=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Leq, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() ">=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Geq, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "==" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Eq, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "!=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Neq, Box::new(lhs), Box::new(rhs))) }
+            --
             n:num() { ast::Expr::ImmInt(n) }
             t:text() { ast::Expr::ImmString(t) }
             id:ident() { ast::Expr::Ident(id) }
@@ -74,10 +86,56 @@ peg::parser!{
                 ast::Assignment::new(id, val)
             }
 
+        rule cond_taken_block() -> Vec<ast::Statement>
+            = "entao" ws() "{" ws() stmts:(statement() ** ws()) ws() "}" {
+                stmts
+            }
+
+        rule cond_not_taken_block() -> Vec<ast::Statement>
+            = "senao" ws() "{" ws() stmts:(statement() ** ws()) ws() "}" {
+                stmts
+            }
+
+        pub rule conditional() -> ast::Conditional
+            = "se" ws() "(" ws() cond:expr() ws() ")" ws()
+              taken:cond_taken_block() ws()
+              not_taken:(cond_not_taken_block()?) {
+                  let not_taken = match not_taken {
+                      Some(stmts) => stmts,
+                      None        => vec![],
+                  };
+
+                  ast::Conditional {
+                      cond,
+                      taken,
+                      not_taken,
+                  }
+              }
+
+        pub rule while_loop() -> ast::WhileLoop
+            = "enquanto" ws() "(" ws() cond:expr() ")" ws() "{" ws() stmts:(statement() ** ws()) ws() "}" {
+                ast::WhileLoop {
+                    cond,
+                    body: stmts,
+                }
+            }
+
+        pub rule do_while_loop() -> ast::DoWhileLoop
+            = "faca" ws() "{" ws() stmts:(statement() ** ws()) ws() "}" ws()
+              "enquanto" ws() "(" ws() cond:expr() ws() ")." ws() {
+                ast::DoWhileLoop {
+                    cond,
+                    body: stmts,
+                }
+            }
+
         pub rule statement() -> ast::Statement
-            = d:decl()       { ast::Statement::Decl(d) }
-            / fc:fncall()    { ast::Statement::FnCall(fc) }
-            / a:assignment() { ast::Statement::Assignment(a) }
+            = d:decl()          { ast::Statement::Decl(d) }
+            / fc:fncall()       { ast::Statement::FnCall(fc) }
+            / a:assignment()    { ast::Statement::Assignment(a) }
+            / c:conditional()   { ast::Statement::Conditional(c) }
+            / l:while_loop()    { ast::Statement::WhileLoop(l) }
+            / l:do_while_loop() { ast::Statement::DoWhileLoop(l) }
 
         pub rule program() -> ast::IsiProgram
             = ws() "programa" ws() stmts:(statement() ** ws()) ws() "fimprog." ws() {

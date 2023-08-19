@@ -115,11 +115,7 @@ impl<'a> IsiVisitor for TypeCk<'a> {
             BinaryOp::Add => { Ok(left) },
             BinaryOp::Sub |
             BinaryOp::Mul |
-            BinaryOp::Div |
-            BinaryOp::Gt  |
-            BinaryOp::Lt  |
-            BinaryOp::Geq |
-            BinaryOp::Leq => {
+            BinaryOp::Div => {
                 match left {
                     IsiType::String |
                     IsiType::Unit => Err(CheckError {
@@ -129,7 +125,11 @@ impl<'a> IsiVisitor for TypeCk<'a> {
                     _ => Ok(left)
                 }
             },
-            BinaryOp::Eq |
+            BinaryOp::Gt  |
+            BinaryOp::Lt  |
+            BinaryOp::Geq |
+            BinaryOp::Leq |
+            BinaryOp::Eq  |
             BinaryOp::Neq => { Ok(IsiType::Bool) },
         }
     }
@@ -150,5 +150,60 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         }
 
         Ok(left)
+    }
+
+    fn visit_conditional(&mut self, conditional: &isic_front::ast::Conditional) -> Self::Ret {
+        let cond_ty = self.visit_expr(&conditional.cond)?;
+
+        if cond_ty != IsiType::Bool {
+            return Err(CheckError {
+                span: Span { start: 0, end: 0 },
+                desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
+            });
+        }
+
+        for stmt in &conditional.taken {
+            self.visit_statement(stmt)?;
+        }
+
+        for stmt in &conditional.not_taken {
+            self.visit_statement(stmt)?;
+        }
+
+        Ok(IsiType::Unit)
+    }
+
+    fn visit_while_loop(&mut self, while_loop: &isic_front::ast::WhileLoop) -> Self::Ret {
+        let cond_ty = self.visit_expr(&while_loop.cond)?;
+
+        if cond_ty != IsiType::Bool {
+            return Err(CheckError {
+                span: Span { start: 0, end: 0 },
+                desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
+            });
+        }
+
+        for stmt in &while_loop.body {
+            self.visit_statement(stmt)?;
+        }
+
+        Ok(IsiType::Unit)
+    }
+
+    fn visit_do_while_loop(&mut self, do_while_loop: &isic_front::ast::DoWhileLoop) -> Self::Ret {
+        let cond_ty = self.visit_expr(&do_while_loop.cond)?;
+
+        if cond_ty != IsiType::Bool {
+            return Err(CheckError {
+                span: Span { start: 0, end: 0 },
+                desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
+            });
+        }
+
+        for stmt in &do_while_loop.body {
+            self.visit_statement(stmt)?;
+        }
+
+        Ok(IsiType::Unit)
     }
 }
