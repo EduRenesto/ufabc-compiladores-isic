@@ -1,6 +1,10 @@
 use std::hash::Hash;
 
-use crate::{visitor::{Visitable, IsiVisitor}, impl_visitable, span::Span};
+use crate::{
+    impl_visitable,
+    span::Span,
+    visitor::{IsiVisitor, Visitable},
+};
 
 pub struct Spanned<T: std::fmt::Debug + PartialEq + Eq> {
     pub span: Span,
@@ -120,10 +124,7 @@ pub struct FnCall {
 
 impl FnCall {
     pub fn new(fname: Ident, args: Vec<Expr>) -> FnCall {
-        FnCall {
-            fname,
-            args,
-        }
+        FnCall { fname, args }
     }
 
     pub fn get_span(&self) -> Span {
@@ -145,10 +146,7 @@ pub struct Assignment {
 
 impl Assignment {
     pub fn new(ident: Ident, val: Expr) -> Assignment {
-        Assignment {
-            ident,
-            val,
-        }
+        Assignment { ident, val }
     }
 
     pub fn get_span(&self) -> Span {
@@ -192,9 +190,7 @@ pub struct IsiProgram {
 
 impl IsiProgram {
     pub fn new(statements: Vec<Statement>) -> IsiProgram {
-        IsiProgram {
-            statements,
-        }
+        IsiProgram { statements }
     }
 }
 

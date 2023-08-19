@@ -1,6 +1,6 @@
 pub mod ast;
 pub mod parser;
-pub mod visitor;
 pub mod span;
+pub mod visitor;
 
 pub use peg;

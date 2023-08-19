@@ -1,7 +1,7 @@
 use std::io::Read;
-use std::{path::PathBuf, error::Error, fs::File};
+use std::{error::Error, fs::File, path::PathBuf};
 
-use ariadne::{Report, Source, Label};
+use ariadne::{Label, Report, Source};
 use clap::Parser;
 use isic_back::cemitter::CEmitter;
 use isic_middle::typeck::TypeCk;
@@ -10,11 +10,11 @@ use isic_middle::usageck::UsageCk;
 #[derive(Parser)]
 #[command()]
 struct CliArgs {
-    #[arg(short='i', long="input")]
+    #[arg(short = 'i', long = "input")]
     /// O arquivo de entrada.
     pub input_file: PathBuf,
 
-    #[arg(short='o', long="output")]
+    #[arg(short = 'o', long = "output")]
     /// O arquivo de saída. Padrão: <arquivo de entrada>.c
     output_file: Option<PathBuf>,
 }
@@ -36,7 +36,7 @@ impl CliArgs {
 fn main() -> Result<(), Box<dyn Error>> {
     let args = CliArgs::parse();
 
-    let mut input  = File::open(&args.input_file)?;
+    let mut input = File::open(&args.input_file)?;
     let mut output = File::create(&args.get_output_file())?;
 
     let mut input_text = String::new();
@@ -59,7 +59,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .with_label(
                             Label::new(((), desc.span.start..desc.span.end))
                                 .with_color(ariadne::Color::Red)
-                                .with_message(desc.desc)
+                                .with_message(desc.desc),
                         )
                         .finish()
                         .print(&mut reporter_src)
@@ -80,7 +80,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .with_label(
                         Label::new(((), desc.span.start..desc.span.end))
                             .with_color(ariadne::Color::Yellow)
-                            .with_message(desc.desc)
+                            .with_message(desc.desc),
                     )
                     .finish()
                     .print(&mut reporter_src)
@@ -89,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
             emitter.emit().unwrap();
-        },
+        }
         Err(e) => {
             // XXX
             //let err = chic::Error::new("parse error")
@@ -103,7 +103,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             //    .to_string();
 
             eprintln!("{}", e.expected);
-        },
+        }
     }
 
     Ok(())

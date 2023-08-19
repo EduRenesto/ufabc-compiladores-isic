@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use isic_front::{ast::{IsiProgram, Ident, Expr}, span::Span, visitor::IsiVisitor};
+use isic_front::{
+    ast::{Expr, Ident, IsiProgram},
+    span::Span,
+    visitor::IsiVisitor,
+};
 
 use crate::CheckError;
 
@@ -13,7 +17,7 @@ struct UsageInfo {
 
 pub struct UsageCk<'a> {
     program: &'a IsiProgram,
-    sym_table: HashMap<Ident, UsageInfo>
+    sym_table: HashMap<Ident, UsageInfo>,
 }
 
 impl<'a> UsageCk<'a> {
@@ -79,15 +83,20 @@ impl<'a> IsiVisitor for UsageCk<'a> {
     }
 
     fn visit_decl(&mut self, decl: &isic_front::ast::VarDecl) -> Self::Ret {
-        if self.sym_table.contains_key(&decl.var_name) { return; }
+        if self.sym_table.contains_key(&decl.var_name) {
+            return;
+        }
 
         let span = decl.span;
 
-        self.sym_table.insert(decl.var_name.clone(), UsageInfo {
-            declared: span,
-            assignments: vec![],
-            uses: vec![],
-        });
+        self.sym_table.insert(
+            decl.var_name.clone(),
+            UsageInfo {
+                declared: span,
+                assignments: vec![],
+                uses: vec![],
+            },
+        );
     }
 
     fn visit_expr(&mut self, expr: &isic_front::ast::Expr) -> Self::Ret {

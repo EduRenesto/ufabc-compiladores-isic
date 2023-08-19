@@ -5,10 +5,10 @@ macro_rules! impl_visitable {
     ($type_name:ident, $fn_name:ident) => {
         impl Visitable for $type_name {
             fn visit<V: IsiVisitor + ?Sized>(&self, visitor: &mut V) {
-                visitor.$fn_name (self);
+                visitor.$fn_name(self);
             }
         }
-    }
+    };
 }
 
 pub trait Visitable {
@@ -53,12 +53,12 @@ pub trait IsiVisitor {
 
     fn visit_statement(&mut self, stmt: &Statement) -> Self::Ret {
         match stmt {
-            Statement::Assignment(ass)   => self.visit_assignment(ass),
-            Statement::Decl(decl)        => self.visit_decl(decl),
-            Statement::FnCall(call)      => self.visit_fn_call(call),
+            Statement::Assignment(ass) => self.visit_assignment(ass),
+            Statement::Decl(decl) => self.visit_decl(decl),
+            Statement::FnCall(call) => self.visit_fn_call(call),
             Statement::Conditional(cond) => self.visit_conditional(cond),
-            Statement::WhileLoop(l)      => self.visit_while_loop(l),
-            Statement::DoWhileLoop(l)    => self.visit_do_while_loop(l),
+            Statement::WhileLoop(l) => self.visit_while_loop(l),
+            Statement::DoWhileLoop(l) => self.visit_do_while_loop(l),
         }
     }
 

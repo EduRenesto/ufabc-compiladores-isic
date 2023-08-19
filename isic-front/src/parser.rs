@@ -1,7 +1,7 @@
 use crate::ast;
 use crate::span::Span;
 
-peg::parser!{
+peg::parser! {
     pub grammar isilang_parser() for str {
         rule spanned<T: std::fmt::Debug + PartialEq + Eq>(r: rule<T>) -> ast::Spanned<T>
             = start:position!() x:r() end:position!() {
@@ -222,7 +222,8 @@ mod test {
         let input = "declare foo: int.";
         let ret = isilang_parser::decl(&input);
 
-        let expected = ast::VarDecl::new(ast::Ident("foo".to_string()), ast::Ident("int".to_string()));
+        let expected =
+            ast::VarDecl::new(ast::Ident("foo".to_string()), ast::Ident("int".to_string()));
 
         assert_eq!(ret, Ok(expected));
     }
@@ -325,10 +326,22 @@ mod test {
         let ret = isilang_parser::program(&input);
 
         let expected = ast::IsiProgram::new(vec![
-            ast::Statement::FnCall(ast::FnCall::new(ast::Ident("escreva".to_string()), vec![ast::Expr::Ident(ast::Ident("foo".to_string()))])),
-            ast::Statement::Decl(ast::VarDecl::new(ast::Ident("foo".to_string()), ast::Ident("int".to_string()))),
-            ast::Statement::Decl(ast::VarDecl::new(ast::Ident("bar".to_string()), ast::Ident("string".to_string()))),
-            ast::Statement::Assignment(ast::Assignment::new(ast::Ident("foo".to_string()), ast::Expr::ImmInt(ast::IntLiteral(123)))),
+            ast::Statement::FnCall(ast::FnCall::new(
+                ast::Ident("escreva".to_string()),
+                vec![ast::Expr::Ident(ast::Ident("foo".to_string()))],
+            )),
+            ast::Statement::Decl(ast::VarDecl::new(
+                ast::Ident("foo".to_string()),
+                ast::Ident("int".to_string()),
+            )),
+            ast::Statement::Decl(ast::VarDecl::new(
+                ast::Ident("bar".to_string()),
+                ast::Ident("string".to_string()),
+            )),
+            ast::Statement::Assignment(ast::Assignment::new(
+                ast::Ident("foo".to_string()),
+                ast::Expr::ImmInt(ast::IntLiteral(123)),
+            )),
         ]);
 
         assert_eq!(ret, Ok(expected));

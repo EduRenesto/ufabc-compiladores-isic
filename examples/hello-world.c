@@ -12,7 +12,7 @@ int main() {
     a = 123;
     c = 666;
     printf("Digite um numero\n");
-    scanf("%d\n", &b);
+    scanf("%d", &b);
     if ((b < 10)) {
         printf("b menor 10\n");
     }

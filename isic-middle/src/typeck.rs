@@ -1,10 +1,14 @@
 use std::collections::HashMap;
 
-use isic_front::{ast::{IsiProgram, Ident, BinaryOp}, span::Span, visitor::{IsiVisitor, Visitable}};
+use isic_front::{
+    ast::{BinaryOp, Ident, IsiProgram},
+    span::Span,
+    visitor::{IsiVisitor, Visitable},
+};
 
 use crate::CheckError;
-use crate::SymbolInfo;
 use crate::IsiType;
+use crate::SymbolInfo;
 
 pub struct TypeCk<'a> {
     program: &'a IsiProgram,
@@ -57,7 +61,7 @@ impl<'a> IsiVisitor for TypeCk<'a> {
             None => Err(CheckError {
                 span: id.span,
                 desc: format!("Undefined variable {}", id.name),
-            })
+            }),
         }
     }
 
@@ -72,10 +76,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         }
 
         let ty = match decl.var_type.name.as_str() {
-            "int"    => Ok(IsiType::Int),
-            "float"  => Ok(IsiType::Float),
+            "int" => Ok(IsiType::Int),
+            "float" => Ok(IsiType::Float),
             "string" => Ok(IsiType::String),
-            t@_      => Err(CheckError {
+            t @ _ => Err(CheckError {
                 span,
                 desc: format!("Unknown type {}", t),
             }),
@@ -86,7 +90,7 @@ impl<'a> IsiVisitor for TypeCk<'a> {
             SymbolInfo {
                 ty,
                 declaration: span,
-            }
+            },
         );
 
         Ok(ty)
@@ -95,36 +99,37 @@ impl<'a> IsiVisitor for TypeCk<'a> {
     fn visit_bin_expr(&mut self, bexpr: &isic_front::ast::BinExpr) -> Self::Ret {
         let span = bexpr.get_span();
 
-        let left  = self.visit_expr(&bexpr.1)?;
+        let left = self.visit_expr(&bexpr.1)?;
         let right = self.visit_expr(&bexpr.2)?;
 
         if left != right {
             return Err(CheckError {
                 span,
-                desc: format!("Mismatched types for binary expression: left is {:?}, right is {:?}", left, right),
+                desc: format!(
+                    "Mismatched types for binary expression: left is {:?}, right is {:?}",
+                    left, right
+                ),
             });
         }
 
         match bexpr.0 {
-            BinaryOp::Add => { Ok(left) },
-            BinaryOp::Sub |
-            BinaryOp::Mul |
-            BinaryOp::Div => {
-                match left {
-                    IsiType::String |
-                    IsiType::Unit => Err(CheckError {
-                        span,
-                        desc: format!("Operator {:?} is not defined between terms of type {:?}", bexpr.0, left),
-                    }),
-                    _ => Ok(left)
-                }
+            BinaryOp::Add => Ok(left),
+            BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div => match left {
+                IsiType::String | IsiType::Unit => Err(CheckError {
+                    span,
+                    desc: format!(
+                        "Operator {:?} is not defined between terms of type {:?}",
+                        bexpr.0, left
+                    ),
+                }),
+                _ => Ok(left),
             },
-            BinaryOp::Gt  |
-            BinaryOp::Lt  |
-            BinaryOp::Geq |
-            BinaryOp::Leq |
-            BinaryOp::Eq  |
-            BinaryOp::Neq => { Ok(IsiType::Bool) },
+            BinaryOp::Gt
+            | BinaryOp::Lt
+            | BinaryOp::Geq
+            | BinaryOp::Leq
+            | BinaryOp::Eq
+            | BinaryOp::Neq => Ok(IsiType::Bool),
         }
     }
 
@@ -141,7 +146,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         if left != right {
             return Err(CheckError {
                 span,
-                desc: format!("Mismatched types for assignment: tried to assign a {:?} to a {:?}", right, left),
+                desc: format!(
+                    "Mismatched types for assignment: tried to assign a {:?} to a {:?}",
+                    right, left
+                ),
             });
         }
 
@@ -155,7 +163,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         if cond_ty != IsiType::Bool {
             return Err(CheckError {
                 span: cond_span,
-                desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
+                desc: format!(
+                    "The type of conditionals must be Bool, found {:?} instead",
+                    cond_ty
+                ),
             });
         }
 
@@ -177,7 +188,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         if cond_ty != IsiType::Bool {
             return Err(CheckError {
                 span: cond_span,
-                desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
+                desc: format!(
+                    "The type of conditionals must be Bool, found {:?} instead",
+                    cond_ty
+                ),
             });
         }
 
@@ -195,7 +209,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         if cond_ty != IsiType::Bool {
             return Err(CheckError {
                 span: cond_span,
-                desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
+                desc: format!(
+                    "The type of conditionals must be Bool, found {:?} instead",
+                    cond_ty
+                ),
             });
         }
 

@@ -1,12 +1,13 @@
 use std::{collections::HashMap, io::Write};
 
 use isic_front::{
-    ast::{Ident, IsiProgram, Expr},
-    visitor::IsiVisitor, span::Span,
+    ast::{Expr, Ident, IsiProgram},
+    span::Span,
+    visitor::IsiVisitor,
 };
-use isic_middle::{SymbolInfo, CheckError, IsiType};
+use isic_middle::{CheckError, IsiType, SymbolInfo};
 
-use crate::{isi_error::IsiError, symbol::Symbol, builtins::BuiltinType};
+use crate::{builtins::BuiltinType, isi_error::IsiError, symbol::Symbol};
 
 pub struct CEmitter<'a, W: Write> {
     program: &'a IsiProgram,
@@ -19,7 +20,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
     pub fn new(
         program: &'a IsiProgram,
         sym_table: &'a HashMap<Ident, SymbolInfo>,
-        output: &'a mut W
+        output: &'a mut W,
     ) -> CEmitter<'a, W> {
         CEmitter {
             program,
@@ -66,24 +67,31 @@ impl<'a, W: Write> CEmitter<'a, W> {
                 let sym = self.sym_table.get(ident).unwrap();
 
                 let fmt = match sym.ty {
-                    IsiType::Int    => "%d",
-                    IsiType::Float  => "%f",
+                    IsiType::Int => "%d",
+                    IsiType::Float => "%f",
                     IsiType::String => "%s",
-                    _               => todo!(),
+                    _ => todo!(),
                 };
 
-                writeln!(self.output, "{}printf(\"{}\\n\", {});", self.pad(), fmt, ident.name).unwrap();
-            },
+                writeln!(
+                    self.output,
+                    "{}printf(\"{}\\n\", {});",
+                    self.pad(),
+                    fmt,
+                    ident.name
+                )
+                .unwrap();
+            }
             Expr::ImmInt(ref imm) => {
                 writeln!(self.output, "{}printf(\"%d\\n\", {});", self.pad(), imm.0).unwrap();
-            },
+            }
             Expr::ImmFloat(ref imm) => {
                 writeln!(self.output, "{}printf(\"%f\\n\", {});", self.pad(), imm.0).unwrap();
-            },
+            }
             Expr::ImmString(ref imm) => {
                 writeln!(self.output, "{}printf(\"{}\\n\");", self.pad(), imm.0).unwrap();
-            },
-            _ => todo!()
+            }
+            _ => todo!(),
         }
     }
 
@@ -98,15 +106,22 @@ impl<'a, W: Write> CEmitter<'a, W> {
                 let sym = self.sym_table.get(ident).unwrap();
 
                 let fmt = match sym.ty {
-                    IsiType::Int    => "%d",
-                    IsiType::Float  => "%f",
+                    IsiType::Int => "%d",
+                    IsiType::Float => "%f",
                     IsiType::String => "%s",
-                    _               => todo!(),
+                    _ => todo!(),
                 };
 
-                writeln!(self.output, "{}scanf(\"{}\\n\", &{});", self.pad(), fmt, ident.name).unwrap();
-            },
-            _ => todo!()
+                writeln!(
+                    self.output,
+                    "{}scanf(\"{}\", &{});",
+                    self.pad(),
+                    fmt,
+                    ident.name
+                )
+                .unwrap();
+            }
+            _ => todo!(),
         }
     }
 }
@@ -120,13 +135,19 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
         Ok(())
     }
 
-    fn visit_float_literal(&mut self, lit: &isic_front::ast::FloatLiteral) -> Result<(), CheckError> {
+    fn visit_float_literal(
+        &mut self,
+        lit: &isic_front::ast::FloatLiteral,
+    ) -> Result<(), CheckError> {
         write!(self.output, "{}f", lit.0).unwrap();
 
         Ok(())
     }
 
-    fn visit_string_literal(&mut self, lit: &isic_front::ast::StringLiteral) -> Result<(), CheckError> {
+    fn visit_string_literal(
+        &mut self,
+        lit: &isic_front::ast::StringLiteral,
+    ) -> Result<(), CheckError> {
         write!(self.output, "{}", lit.0).unwrap();
 
         Ok(())
@@ -140,10 +161,10 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
 
     fn visit_decl(&mut self, decl: &isic_front::ast::VarDecl) -> Result<(), CheckError> {
         let ty = match self.sym_table.get(&decl.var_name).unwrap().ty {
-            IsiType::Int    => "int",
-            IsiType::Float  => "float",
+            IsiType::Int => "int",
+            IsiType::Float => "float",
             IsiType::String => "char*",
-            _               => todo!(),
+            _ => todo!(),
         };
 
         writeln!(self.output, "{}{} {};", self.pad(), ty, decl.var_name.name).unwrap();
@@ -154,14 +175,17 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     fn visit_fn_call(&mut self, call: &isic_front::ast::FnCall) -> Result<(), CheckError> {
         match call.fname.name.as_str() {
             "escreva" => self.emit_print(call),
-            "leia"    => self.emit_scan(call),
-            _         => todo!(),
+            "leia" => self.emit_scan(call),
+            _ => todo!(),
         };
 
         Ok(())
     }
 
-    fn visit_assignment(&mut self, assignment: &isic_front::ast::Assignment) -> Result<(), CheckError> {
+    fn visit_assignment(
+        &mut self,
+        assignment: &isic_front::ast::Assignment,
+    ) -> Result<(), CheckError> {
         write!(self.output, "{}{} = ", self.pad(), assignment.ident.name).unwrap();
 
         self.visit_expr(&assignment.val)?;
@@ -181,11 +205,11 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
             isic_front::ast::BinaryOp::Sub => "-",
             isic_front::ast::BinaryOp::Mul => "*",
             isic_front::ast::BinaryOp::Div => "/",
-            isic_front::ast::BinaryOp::Gt  => ">",
-            isic_front::ast::BinaryOp::Lt  => "<",
+            isic_front::ast::BinaryOp::Gt => ">",
+            isic_front::ast::BinaryOp::Lt => "<",
             isic_front::ast::BinaryOp::Geq => ">=",
             isic_front::ast::BinaryOp::Leq => "<=",
-            isic_front::ast::BinaryOp::Eq  => "==",
+            isic_front::ast::BinaryOp::Eq => "==",
             isic_front::ast::BinaryOp::Neq => "!=",
         };
 
