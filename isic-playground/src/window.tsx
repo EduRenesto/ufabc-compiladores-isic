@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { ReactElement } from "react";
 import { WindowWrapper } from "./window.style";
 
 export type WindowProps = {
     title: string,
     disabled?: boolean,
+    children?: ReactElement[],
 };
 
 export const Window: React.FC<WindowProps> = (props: WindowProps) => {

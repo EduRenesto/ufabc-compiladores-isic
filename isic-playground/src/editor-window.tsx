@@ -5,7 +5,7 @@ import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-terminal";
 
 import AceEditor from "react-ace";
-import { ButtonsWrapper, WindowWrapper } from "./editor-window.style";
+import { ButtonsWrapper } from "./editor-window.style";
 import { Window } from "./window";
 
 const sampleText = `programa
