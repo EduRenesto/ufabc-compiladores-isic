@@ -1,7 +1,7 @@
 use std::io::Read;
 use std::{path::PathBuf, error::Error, fs::File};
 
-use ariadne::Report;
+use ariadne::{Report, Source, Label};
 use clap::Parser;
 use isic_back::cemitter::CEmitter;
 use isic_middle::typeck::TypeCk;
@@ -44,13 +44,26 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let parse_result = isic_front::parser::isilang_parser::program(&input_text);
 
+    let mut reporter_src = Source::from(&input_text);
+
     match parse_result {
         Ok(ast) => 'a: {
             let mut typeck = TypeCk::new(&ast);
             if let Err(errors) = typeck.check() {
                 //let report = Report::build(ariadne::ReportKind::Error, args.input_file, offset);
                 for desc in errors {
-                    println!("{:?}", desc);
+                    let offset = reporter_src.get_offset_line(desc.span.start).unwrap();
+
+                    let report = Report::build(ariadne::ReportKind::Error, (), offset.1)
+                        .with_message("Type error")
+                        .with_label(
+                            Label::new(((), desc.span.start..desc.span.end))
+                                .with_color(ariadne::Color::Red)
+                                .with_message(desc.desc)
+                        )
+                        .finish()
+                        .print(&mut reporter_src)
+                        .unwrap();
                 }
 
                 break 'a;
@@ -60,7 +73,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             let warns = usageck.check();
 
             for desc in warns {
-                println!("{:?}", desc);
+                let offset = reporter_src.get_offset_line(desc.span.start).unwrap();
+
+                let report = Report::build(ariadne::ReportKind::Warning, (), offset.1)
+                    .with_message("Usage pattern warning")
+                    .with_label(
+                        Label::new(((), desc.span.start..desc.span.end))
+                            .with_color(ariadne::Color::Yellow)
+                            .with_message(desc.desc)
+                    )
+                    .finish()
+                    .print(&mut reporter_src)
+                    .unwrap();
             }
 
             let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
