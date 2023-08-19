@@ -2,12 +2,9 @@ use std::{collections::HashMap, io::Write};
 
 use isic_front::{
     ast::{Expr, Ident, IsiProgram},
-    span::Span,
     visitor::IsiVisitor,
 };
 use isic_middle::{CheckError, IsiType, SymbolInfo};
-
-use crate::{builtins::BuiltinType, isi_error::IsiError, symbol::Symbol};
 
 pub struct CEmitter<'a, W: Write> {
     program: &'a IsiProgram,

@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use isic_front::{
     ast::{BinaryOp, Ident, IsiProgram},
-    span::Span,
-    visitor::{IsiVisitor, Visitable},
+    visitor::IsiVisitor,
 };
 
 use crate::CheckError;

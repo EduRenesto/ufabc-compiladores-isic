@@ -66,19 +66,19 @@ impl<'a> UsageCk<'a> {
 impl<'a> IsiVisitor for UsageCk<'a> {
     type Ret = ();
 
-    fn visit_int_literal(&mut self, lit: &isic_front::ast::IntLiteral) -> Self::Ret {
+    fn visit_int_literal(&mut self, _lit: &isic_front::ast::IntLiteral) -> Self::Ret {
         // do nothing
     }
 
-    fn visit_float_literal(&mut self, lit: &isic_front::ast::FloatLiteral) -> Self::Ret {
+    fn visit_float_literal(&mut self, _lit: &isic_front::ast::FloatLiteral) -> Self::Ret {
         // do nothing
     }
 
-    fn visit_string_literal(&mut self, lit: &isic_front::ast::StringLiteral) -> Self::Ret {
+    fn visit_string_literal(&mut self, _lit: &isic_front::ast::StringLiteral) -> Self::Ret {
         // do nothing
     }
 
-    fn visit_ident(&mut self, id: &Ident) -> Self::Ret {
+    fn visit_ident(&mut self, _id: &Ident) -> Self::Ret {
         // do nothing
     }
 

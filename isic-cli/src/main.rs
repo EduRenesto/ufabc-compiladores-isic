@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 for desc in errors {
                     let offset = reporter_src.get_offset_line(desc.span.start).unwrap();
 
-                    let report = Report::build(ariadne::ReportKind::Error, (), offset.1)
+                    let _report = Report::build(ariadne::ReportKind::Error, (), offset.1)
                         .with_message("Type error")
                         .with_label(
                             Label::new(((), desc.span.start..desc.span.end))
@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             for desc in warns {
                 let offset = reporter_src.get_offset_line(desc.span.start).unwrap();
 
-                let report = Report::build(ariadne::ReportKind::Warning, (), offset.1)
+                let _report = Report::build(ariadne::ReportKind::Warning, (), offset.1)
                     .with_message("Usage pattern warning")
                     .with_label(
                         Label::new(((), desc.span.start..desc.span.end))
@@ -101,8 +101,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             //        format!("expected: {}", e.expected)
             //    )
             //    .to_string();
+            let offset = reporter_src.get_offset_line(e.location.offset).unwrap();
 
-            eprintln!("{}", e.expected);
+            let _report = Report::build(ariadne::ReportKind::Error, (), offset.1)
+                .with_message("Syntax error")
+                .with_label(
+                    Label::new(((), e.location.offset..e.location.offset+1))
+                        .with_color(ariadne::Color::Red)
+                        .with_message(format!("Expected {}", e.expected)),
+                )
+                .finish()
+                .print(&mut reporter_src)
+                .unwrap();
         }
     }
 
