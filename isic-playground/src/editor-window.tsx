@@ -105,8 +105,8 @@ export const EditorWindow: React.FC<EditorProps> = (props: EditorProps) => {
             />
 
             <ButtonsWrapper>
-                <Button onClick={() => props.onCompile(text)}>Compile</Button>
-                <Button onClick={() => props.onEvaluate(text)}>Run interpreter</Button>
+                <Button onClick={() => props.onCompile(text ?? "")}>Compile</Button>
+                <Button onClick={() => props.onEvaluate(text ?? "")}>Run interpreter</Button>
             </ButtonsWrapper>
         </Window>
     )
