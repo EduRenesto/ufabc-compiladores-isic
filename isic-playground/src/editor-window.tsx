@@ -8,21 +8,6 @@ import AceEditor from "react-ace";
 import { Button, Select, ButtonsWrapper } from "./editor-window.style";
 import { Window } from "./window";
 
-const sampleText = `programa
-    declare a: int.
-    declare b: int.
-
-    a := 10.
-    leia(b).
-
-    declare c: int.
-    c := a * b.
-
-    declare d: float.
-
-    escreva(c).
-fimprog.`;
-
 const HELLO_WORLD = `programa
     escreva("Hello world").
 fimprog.`;
