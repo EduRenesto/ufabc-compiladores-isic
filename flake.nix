@@ -23,6 +23,9 @@
         man-pages-posix
 
         graphviz
+
+        nodejs
+        yarn
       ];
     };
   };

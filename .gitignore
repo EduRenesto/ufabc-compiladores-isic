@@ -1,2 +1,4 @@
 /target
 /.direnv
+/isic-playground/node_modules
+/isic-playground-glue/pkg

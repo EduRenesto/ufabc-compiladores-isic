@@ -1,0 +1,12 @@
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #c0c0c0;
+  font-family: "Pixelated MS Sans Serif";
+
+  padding-left: 1vw;
+  padding-right: 1vw;
+}

@@ -4,5 +4,6 @@ members = [
     "isic-back",
     "isic-middle",
     "isic-interpreter",
+    "isic-playground-glue",
     "isic-cli"
 ]

@@ -1,0 +1,12 @@
+programa
+    declare a: int.
+    declare b: int.
+
+    a := 10.
+    b := 20.
+
+    declare c: int.
+    c := a * b.
+
+    escreva(c).
+fimprog.
