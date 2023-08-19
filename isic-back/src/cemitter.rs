@@ -12,6 +12,7 @@ pub struct CEmitter<'a, W: Write> {
     program: &'a IsiProgram,
     sym_table: &'a HashMap<Ident, SymbolInfo>,
     output: &'a mut W,
+    id_level: usize,
 }
 
 impl<'a, W: Write> CEmitter<'a, W> {
@@ -24,6 +25,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
             program,
             sym_table,
             output,
+            id_level: 4,
         }
     }
 
@@ -49,6 +51,10 @@ impl<'a, W: Write> CEmitter<'a, W> {
         writeln!(self.output, "}}").unwrap();
     }
 
+    fn pad(&self) -> String {
+        " ".repeat(self.id_level)
+    }
+
     fn emit_print(&mut self, call: &isic_front::ast::FnCall) {
         // TODO(edu): handle the case where the argument
         // is not an ident or an immediate.
@@ -66,16 +72,16 @@ impl<'a, W: Write> CEmitter<'a, W> {
                     _               => todo!(),
                 };
 
-                writeln!(self.output, "    printf(\"{}\\n\", {});", fmt, ident.name).unwrap();
+                writeln!(self.output, "{}printf(\"{}\\n\", {});", self.pad(), fmt, ident.name).unwrap();
             },
             Expr::ImmInt(ref imm) => {
-                writeln!(self.output, "    printf(\"%d\\n\", {});", imm.0).unwrap();
+                writeln!(self.output, "{}printf(\"%d\\n\", {});", self.pad(), imm.0).unwrap();
             },
             Expr::ImmFloat(ref imm) => {
-                writeln!(self.output, "    printf(\"%f\\n\", {});", imm.0).unwrap();
+                writeln!(self.output, "{}printf(\"%f\\n\", {});", self.pad(), imm.0).unwrap();
             },
             Expr::ImmString(ref imm) => {
-                writeln!(self.output, "    printf(\"{}\\n\");", imm.0).unwrap();
+                writeln!(self.output, "{}printf(\"{}\\n\");", self.pad(), imm.0).unwrap();
             },
             _ => todo!()
         }
@@ -98,7 +104,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
                     _               => todo!(),
                 };
 
-                writeln!(self.output, "    scanf(\"{}\\n\", &{});", fmt, ident.name).unwrap();
+                writeln!(self.output, "{}scanf(\"{}\\n\", &{});", self.pad(), fmt, ident.name).unwrap();
             },
             _ => todo!()
         }
@@ -140,7 +146,7 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
             _               => todo!(),
         };
 
-        writeln!(self.output, "    {} {};", ty, decl.var_name.name).unwrap();
+        writeln!(self.output, "{}{} {};", self.pad(), ty, decl.var_name.name).unwrap();
 
         Ok(())
     }
@@ -156,7 +162,7 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     }
 
     fn visit_assignment(&mut self, assignment: &isic_front::ast::Assignment) -> Result<(), CheckError> {
-        write!(self.output, "    {} = ", assignment.ident.name).unwrap();
+        write!(self.output, "{}{} = ", self.pad(), assignment.ident.name).unwrap();
 
         self.visit_expr(&assignment.val)?;
 
@@ -193,55 +199,70 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     }
 
     fn visit_conditional(&mut self, conditional: &isic_front::ast::Conditional) -> Self::Ret {
-        write!(self.output, "if (").unwrap();
+        write!(self.output, "{}if (", self.pad()).unwrap();
 
         self.visit_expr(&conditional.cond)?;
 
         writeln!(self.output, ") {{").unwrap();
 
+        self.id_level += 4;
+
         for stmt in &conditional.taken {
             self.visit_statement(stmt)?;
         }
 
-        writeln!(self.output, "}}").unwrap();
+        self.id_level -= 4;
+
+        writeln!(self.output, "{}}}", self.pad()).unwrap();
 
         if !conditional.not_taken.is_empty() {
-            writeln!(self.output, "else {{").unwrap();
+            writeln!(self.output, "{}else {{", self.pad()).unwrap();
+
+            self.id_level += 4;
 
             for stmt in &conditional.not_taken {
                 self.visit_statement(stmt)?;
             }
 
-            writeln!(self.output, "}}").unwrap();
+            self.id_level -= 4;
+
+            writeln!(self.output, "{}}}", self.pad()).unwrap();
         }
 
         Ok(())
     }
 
     fn visit_while_loop(&mut self, while_loop: &isic_front::ast::WhileLoop) -> Self::Ret {
-        write!(self.output, "while (").unwrap();
+        write!(self.output, "{}while (", self.pad()).unwrap();
 
         self.visit_expr(&while_loop.cond)?;
 
         writeln!(self.output, ") {{").unwrap();
 
+        self.id_level += 4;
+
         for stmt in &while_loop.body {
             self.visit_statement(stmt)?;
         }
 
-        writeln!(self.output, "}}").unwrap();
+        self.id_level -= 4;
+
+        writeln!(self.output, "{}}}", self.pad()).unwrap();
 
         Ok(())
     }
 
     fn visit_do_while_loop(&mut self, do_while_loop: &isic_front::ast::DoWhileLoop) -> Self::Ret {
-        writeln!(self.output, "do {{").unwrap();
+        writeln!(self.output, "{}do {{", self.pad()).unwrap();
+
+        self.id_level += 4;
 
         for stmt in &do_while_loop.body {
             self.visit_statement(stmt)?;
         }
+        self.id_level -= 4;
 
-        write!(self.output, "}} while (").unwrap();
+        write!(self.output, "{}}} while (", self.pad()).unwrap();
 
         self.visit_expr(&do_while_loop.cond)?;
 
