@@ -5,7 +5,7 @@ use isic_back::cemitter::CEmitter;
 use isic_interpreter::interpreter::IsiInterpreter;
 use isic_front::parser::isilang_parser;
 use isic_middle::{typeck::TypeCk, usageck::UsageCk};
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 use wasm_bindgen::{JsValue, prelude::wasm_bindgen};
 
 #[derive(Serialize)]

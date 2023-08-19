@@ -5,7 +5,7 @@ import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-terminal";
 
 import AceEditor from "react-ace";
-import { ButtonsWrapper } from "./editor-window.style";
+import { Button, Select, ButtonsWrapper } from "./editor-window.style";
 import { Window } from "./window";
 
 const sampleText = `programa
@@ -23,6 +23,52 @@ const sampleText = `programa
     escreva(c).
 fimprog.`;
 
+const EXAMPLES = {
+    "hello-world": `programa
+    escreva("Hello world").
+fimprog.`,
+    "io": `programa
+    declare a: int.
+    declare b: int.
+
+    leia(a).
+    leia(b).
+
+    declare c: int.
+    c := a * b.
+
+    escreva(c).
+fimprog.
+`,
+    "fibonacci": `programa
+    declare n: int.
+    leia(n).
+
+    declare i: int.
+    i := 0.
+
+    declare x1: int.
+    x1 := 0.
+
+    declare x2: int.
+    x2 := 1.
+
+    declare x: int.
+    enquanto (i < n) {
+        escreva(x1).
+
+        x := x1 + x2.
+
+        x1 := x2.
+        x2 := x.
+
+        i := i + 1.
+    }
+fimprog.
+`,
+    "collatz": `TODO`,
+}
+
 export type EditorProps = {
     onCompile: (text: string) => void;
     onEvaluate: (text: string) => void;
@@ -30,17 +76,29 @@ export type EditorProps = {
 
 export const EditorWindow: React.FC<EditorProps> = (props: EditorProps) => {
     const [text, setText] = useState(sampleText);
+    const [example, setExample] = useState<string>("hello-world");
 
     return (
         <Window title="playground.isi - Editor">
+            <p>Examples</p>
+            <ButtonsWrapper>
+                <Select onChange={(e) => setExample(e.target.value)} defaultValue="hello-world">
+                    <option value="hello-world">Hello world</option>
+                    <option value="io">I/O</option>
+                    <option value="fibonacci">Fibonacci</option>
+                    <option value="conditional">Conditionals</option>
+                </Select>
+                <Button onClick={() => setText(EXAMPLES[example])}>Load example</Button>
+            </ButtonsWrapper>
+
             <AceEditor
                 onChange={setText}
                 value={text}
             />
 
             <ButtonsWrapper>
-                <button onClick={() => props.onCompile(text)}>Compile</button>
-                <button onClick={() => props.onEvaluate(text)}>Run interpreter</button>
+                <Button onClick={() => props.onCompile(text)}>Compile</Button>
+                <Button onClick={() => props.onEvaluate(text)}>Run interpreter</Button>
             </ButtonsWrapper>
         </Window>
     )
