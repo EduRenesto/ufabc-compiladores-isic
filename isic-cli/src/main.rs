@@ -4,6 +4,7 @@ use std::{error::Error, fs::File, path::PathBuf};
 use ariadne::{Label, Report, Source};
 use clap::Parser;
 use isic_back::cemitter::CEmitter;
+use isic_interpreter::interpreter::IsiInterpreter;
 use isic_middle::typeck::TypeCk;
 use isic_middle::usageck::UsageCk;
 
@@ -17,6 +18,10 @@ struct CliArgs {
     #[arg(short = 'o', long = "output")]
     /// O arquivo de saída. Padrão: <arquivo de entrada>.c
     output_file: Option<PathBuf>,
+
+    #[arg(short = 'e', long = "execute", default_value = "false")]
+    /// Interpreta o arquivo ao invés de transpilar para C.
+    pub execute: bool,
 }
 
 impl CliArgs {
@@ -87,8 +92,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .unwrap();
             }
 
-            let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
-            emitter.emit().unwrap();
+            if args.execute {
+                let mut stdin = std::io::stdin().lock();
+                let mut stdout = std::io::stdout();
+
+                let mut interpreter = IsiInterpreter::new(&ast, &mut stdin, &mut stdout);
+
+                interpreter.exec();
+            } else {
+                let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
+                emitter.emit().unwrap();
+            }
         }
         Err(e) => {
             // XXX

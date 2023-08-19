@@ -3,5 +3,6 @@ members = [
     "isic-front",
     "isic-back",
     "isic-middle",
+    "isic-interpreter",
     "isic-cli"
 ]

@@ -183,6 +183,7 @@ dependencies = [
  "clap",
  "isic-back",
  "isic-front",
+ "isic-interpreter",
  "isic-middle",
 ]
 
@@ -191,6 +192,14 @@ name = "isic-front"
 version = "0.1.0"
 dependencies = [
  "peg",
+]
+
+[[package]]
+name = "isic-interpreter"
+version = "0.1.0"
+dependencies = [
+ "isic-front",
+ "isic-middle",
 ]
 
 [[package]]

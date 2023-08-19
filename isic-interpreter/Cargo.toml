@@ -1,5 +1,5 @@
 [package]
-name = "isic-cli"
+name = "isic-interpreter"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,9 +7,4 @@ edition = "2021"
 
 [dependencies]
 isic-front = { path="../isic-front" }
-isic-back = { path="../isic-back" }
 isic-middle = { path="../isic-middle" }
-isic-interpreter = { path="../isic-interpreter" }
-
-clap = { version="4.3", features=["derive"] }
-ariadne = "0.3.0"
