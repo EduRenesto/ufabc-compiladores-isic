@@ -1,3 +1,5 @@
+use std::hash::Hash;
+
 use crate::{visitor::{Visitable, IsiVisitor}, impl_visitable, span::Span};
 
 pub struct Spanned<T: std::fmt::Debug + PartialEq + Eq> {
@@ -6,30 +8,57 @@ pub struct Spanned<T: std::fmt::Debug + PartialEq + Eq> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct IntLiteral(pub u64);
+pub struct IntLiteral(pub u64, pub Span);
 
 #[derive(Debug, PartialEq)]
-pub struct FloatLiteral(pub f32);
+pub struct FloatLiteral(pub f32, pub Span);
 
 impl std::cmp::Eq for FloatLiteral {} // cheat...
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct StringLiteral(pub String);
+pub struct StringLiteral(pub String, pub Span);
 
-#[derive(Clone, Hash, Debug, PartialEq, Eq)]
-pub struct Ident(pub String);
+#[derive(Clone, Debug, Eq)]
+pub struct Ident {
+    pub name: String,
+    pub span: Span,
+}
+
+impl std::cmp::PartialEq for Ident {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Hash for Ident {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // vamos pular o span
+        self.name.hash(state);
+    }
+}
+
+impl Ident {
+    pub fn new(name: &str, span: Span) -> Ident {
+        Ident {
+            name: name.to_string(),
+            span,
+        }
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct VarDecl {
     pub var_name: Ident,
     pub var_type: Ident,
+    pub span: Span,
 }
 
 impl VarDecl {
-    pub fn new(var_name: Ident, var_type: Ident) -> VarDecl {
+    pub fn new(var_name: Ident, var_type: Ident, span: Span) -> VarDecl {
         VarDecl {
             var_name,
             var_type,
+            span,
         }
     }
 }
@@ -51,6 +80,15 @@ pub enum BinaryOp {
 #[derive(Debug, PartialEq, Eq)]
 pub struct BinExpr(pub BinaryOp, pub Box<Expr>, pub Box<Expr>);
 
+impl BinExpr {
+    pub fn get_span(&self) -> Span {
+        let lhs = self.1.get_span();
+        let rhs = self.2.get_span();
+
+        lhs.merge(&rhs)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum Expr {
     Ident(Ident),
@@ -62,23 +100,14 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn get_type(&self) -> Option<Ident> {
+    pub fn get_span(&self) -> Span {
         match self {
-            Expr::Ident(_) => None,
-            Expr::ImmInt(_) => Some(Ident("int".to_string())),
-            Expr::ImmString(_) => Some(Ident("string".to_string())),
-            Expr::ImmFloat(_) => Some(Ident("float".to_string())),
-            Expr::BinExpr(BinExpr( _, lhs, rhs )) => {
-                let lhs_ty = dbg!( lhs.get_type() );
-                let rhs_ty = dbg!( rhs.get_type() );
-
-                if lhs_ty == rhs_ty {
-                    lhs_ty
-                } else {
-                    None
-                }
-            },
-            Expr::FnCall(_) => None,
+            Expr::Ident(ref id) => id.span,
+            Expr::ImmInt(ref imm) => imm.1,
+            Expr::ImmString(ref imm) => imm.1,
+            Expr::ImmFloat(ref imm) => imm.1,
+            Expr::BinExpr(ref bexpr) => bexpr.get_span(),
+            Expr::FnCall(ref fcall) => fcall.get_span(),
         }
     }
 }
@@ -96,6 +125,16 @@ impl FnCall {
             args,
         }
     }
+
+    pub fn get_span(&self) -> Span {
+        let mut s = self.fname.span;
+
+        for arg in &self.args {
+            s = s.merge(&arg.get_span());
+        }
+
+        s
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -110,6 +149,10 @@ impl Assignment {
             ident,
             val,
         }
+    }
+
+    pub fn get_span(&self) -> Span {
+        self.ident.span.merge(&self.val.get_span())
     }
 }
 

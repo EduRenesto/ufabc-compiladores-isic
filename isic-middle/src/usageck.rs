@@ -33,12 +33,12 @@ impl<'a> UsageCk<'a> {
             if info.uses.is_empty() {
                 ret.push(CheckError {
                     span: info.declared,
-                    desc: format!("Variable {} was declared but not used anywhere", id.0),
+                    desc: format!("Variable {} was declared but not used anywhere", id.name),
                 });
             } else if info.assignments.is_empty() {
                 ret.push(CheckError {
                     span: info.declared,
-                    desc: format!("Variable {} is used without being written to", id.0),
+                    desc: format!("Variable {} is used without being written to", id.name),
                 });
             }
         }
@@ -81,7 +81,7 @@ impl<'a> IsiVisitor for UsageCk<'a> {
     fn visit_decl(&mut self, decl: &isic_front::ast::VarDecl) -> Self::Ret {
         if self.sym_table.contains_key(&decl.var_name) { return; }
 
-        let span = Span::default();
+        let span = decl.span;
 
         self.sym_table.insert(decl.var_name.clone(), UsageInfo {
             declared: span,
@@ -91,7 +91,7 @@ impl<'a> IsiVisitor for UsageCk<'a> {
     }
 
     fn visit_expr(&mut self, expr: &isic_front::ast::Expr) -> Self::Ret {
-        let span = Span::default();
+        let span = expr.get_span();
 
         match expr {
             Expr::Ident(ident) => self.mark_usage(ident, span),
@@ -107,10 +107,10 @@ impl<'a> IsiVisitor for UsageCk<'a> {
     }
 
     fn visit_fn_call(&mut self, call: &isic_front::ast::FnCall) -> Self::Ret {
-        if call.fname.0 == "leia" {
+        if call.fname.name == "leia" {
             // caso especifico: funcao "leia", que escreve
             // nos args.
-            let span = Span::default();
+            let span = call.get_span();
 
             if let Expr::Ident(ref id) = call.args[0] {
                 self.mark_assigment(id, span);
@@ -125,7 +125,7 @@ impl<'a> IsiVisitor for UsageCk<'a> {
     }
 
     fn visit_assignment(&mut self, assignment: &isic_front::ast::Assignment) -> Self::Ret {
-        let span = Span::default();
+        let span = assignment.get_span();
 
         self.mark_assigment(&assignment.ident, span);
     }

@@ -12,32 +12,50 @@ peg::parser!{
             }
 
         pub rule num() -> ast::IntLiteral
-            = n:$(['0'..='9']+) {
-                ? n.parse().map(|n| ast::IntLiteral(n)).or(Err("u64"))
+            = t0:position!() n:$(['0'..='9']+) t1:position!() {
+                ? {
+                    let span = Span { start: t0, end: t1 };
+
+                    n
+                        .parse()
+                        .map(|n| ast::IntLiteral(n, span))
+                        .or(Err("u64"))
+                }
             }
 
         pub rule numf() -> ast::FloatLiteral
-            = n:$(['0'..='9']+ "," ['0'..='9']+) {
-                ? n.replace(",", ".").parse().map(|n| ast::FloatLiteral(n)).or(Err("f32"))
-            }
+            = t0:position!() n:$(['0'..='9']+ "," ['0'..='9']+) t1:position!() {
+                ? {
+                    let span = Span { start: t0, end: t1 };
 
-        pub rule ident() -> ast::Ident
-            = id:$(['a'..='z' | 'A'..='Z']['a'..='z' | 'A'..='Z' | '0'..='9']*) {
-                ast::Ident(String::from(id))
+                    n
+                        .replace(",", ".")
+                        .parse()
+                        .map(|n| ast::FloatLiteral(n, span))
+                        .or(Err("f32"))
+                }
             }
 
         pub rule text() -> ast::StringLiteral
-            = "\"" t:$(['a'..='z' | 'A'..='Z' | '0'..='9' | ' ']+) "\"" {
-                ast::StringLiteral(String::from(t))
+            = t0:position!() "\"" t:$(['a'..='z' | 'A'..='Z' | '0'..='9' | ' ']+) "\"" t1:position!() {
+                let span = Span { start: t0, end: t1 };
+
+                ast::StringLiteral(String::from(t), span)
+            }
+
+        pub rule ident() -> ast::Ident
+            = t0:position!() id:$(['a'..='z' | 'A'..='Z']['a'..='z' | 'A'..='Z' | '0'..='9']*) t1:position!() {
+                let span = Span { start: t0, end: t1 };
+
+                ast::Ident::new(id, span)
             }
 
         // TODO(edu): varias variaveis num declare só
         pub rule decl() -> ast::VarDecl
-            = "declare " vname:(ident()) (" "?) ":" (" "?) vtype:(ident()) "." {
-                ast::VarDecl::new(vname, vtype)
+            = t0: position!() "declare " vname:(ident()) (" "?) ":" (" "?) vtype:(ident()) "." t1:position!() {
+                let span = Span { start: t0, end: t1 };
+                ast::VarDecl::new(vname, vtype, span)
             }
-
-        pub rule spanned_decl() -> ast::Spanned<ast::VarDecl> = spanned(<decl()>)
 
         pub rule binop() -> ast::BinaryOp
             = "+"  { ast::BinaryOp::Add }

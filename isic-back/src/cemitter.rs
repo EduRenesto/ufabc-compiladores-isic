@@ -66,7 +66,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
                     _               => todo!(),
                 };
 
-                writeln!(self.output, "    printf(\"{}\\n\", {});", fmt, ident.0).unwrap();
+                writeln!(self.output, "    printf(\"{}\\n\", {});", fmt, ident.name).unwrap();
             },
             Expr::ImmInt(ref imm) => {
                 writeln!(self.output, "    printf(\"%d\\n\", {});", imm.0).unwrap();
@@ -98,7 +98,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
                     _               => todo!(),
                 };
 
-                writeln!(self.output, "    scanf(\"{}\\n\", &{});", fmt, ident.0).unwrap();
+                writeln!(self.output, "    scanf(\"{}\\n\", &{});", fmt, ident.name).unwrap();
             },
             _ => todo!()
         }
@@ -127,7 +127,7 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     }
 
     fn visit_ident(&mut self, id: &Ident) -> Result<(), CheckError> {
-        write!(self.output, "{}", id.0).unwrap();
+        write!(self.output, "{}", id.name).unwrap();
 
         Ok(())
     }
@@ -140,13 +140,13 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
             _               => todo!(),
         };
 
-        writeln!(self.output, "    {} {};", ty, decl.var_name.0).unwrap();
+        writeln!(self.output, "    {} {};", ty, decl.var_name.name).unwrap();
 
         Ok(())
     }
 
     fn visit_fn_call(&mut self, call: &isic_front::ast::FnCall) -> Result<(), CheckError> {
-        match call.fname.0.as_str() {
+        match call.fname.name.as_str() {
             "escreva" => self.emit_print(call),
             "leia"    => self.emit_scan(call),
             _         => todo!(),
@@ -156,7 +156,7 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
     }
 
     fn visit_assignment(&mut self, assignment: &isic_front::ast::Assignment) -> Result<(), CheckError> {
-        write!(self.output, "    {} = ", assignment.ident.0).unwrap();
+        write!(self.output, "    {} = ", assignment.ident.name).unwrap();
 
         self.visit_expr(&assignment.val)?;
 

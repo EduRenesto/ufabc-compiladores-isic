@@ -55,23 +55,23 @@ impl<'a> IsiVisitor for TypeCk<'a> {
         match self.sym_table.get(id) {
             Some(ref sym) => Ok(sym.ty),
             None => Err(CheckError {
-                span: Span { start: 0, end: 0 },
-                desc: format!("Undefined variable {}", id.0),
+                span: id.span,
+                desc: format!("Undefined variable {}", id.name),
             })
         }
     }
 
     fn visit_decl(&mut self, decl: &isic_front::ast::VarDecl) -> Self::Ret {
-        let span = Span { start: 0, end: 0 };
+        let span = decl.span;
 
         if self.sym_table.contains_key(&decl.var_name) {
             return Err(CheckError {
                 span,
-                desc: format!("Redeclaration of variable {}", decl.var_name.0),
+                desc: format!("Redeclaration of variable {}", decl.var_name.name),
             });
         }
 
-        let ty = match decl.var_type.0.as_str() {
+        let ty = match decl.var_type.name.as_str() {
             "int"    => Ok(IsiType::Int),
             "float"  => Ok(IsiType::Float),
             "string" => Ok(IsiType::String),
@@ -93,12 +93,14 @@ impl<'a> IsiVisitor for TypeCk<'a> {
     }
 
     fn visit_bin_expr(&mut self, bexpr: &isic_front::ast::BinExpr) -> Self::Ret {
+        let span = bexpr.get_span();
+
         let left  = self.visit_expr(&bexpr.1)?;
         let right = self.visit_expr(&bexpr.2)?;
 
         if left != right {
             return Err(CheckError {
-                span: Span { start: 0, end: 0 },
+                span,
                 desc: format!("Mismatched types for binary expression: left is {:?}, right is {:?}", left, right),
             });
         }
@@ -111,7 +113,7 @@ impl<'a> IsiVisitor for TypeCk<'a> {
                 match left {
                     IsiType::String |
                     IsiType::Unit => Err(CheckError {
-                        span: Span { start: 0, end: 0 },
+                        span,
                         desc: format!("Operator {:?} is not defined between terms of type {:?}", bexpr.0, left),
                     }),
                     _ => Ok(left)
@@ -131,12 +133,14 @@ impl<'a> IsiVisitor for TypeCk<'a> {
     }
 
     fn visit_assignment(&mut self, assignment: &isic_front::ast::Assignment) -> Self::Ret {
+        let span = assignment.get_span();
+
         let left = self.visit_ident(&assignment.ident)?;
         let right = self.visit_expr(&assignment.val)?;
 
         if left != right {
             return Err(CheckError {
-                span: Span { start: 0, end: 0 },
+                span,
                 desc: format!("Mismatched types for assignment: tried to assign a {:?} to a {:?}", right, left),
             });
         }
@@ -145,11 +149,12 @@ impl<'a> IsiVisitor for TypeCk<'a> {
     }
 
     fn visit_conditional(&mut self, conditional: &isic_front::ast::Conditional) -> Self::Ret {
+        let cond_span = conditional.cond.get_span();
         let cond_ty = self.visit_expr(&conditional.cond)?;
 
         if cond_ty != IsiType::Bool {
             return Err(CheckError {
-                span: Span { start: 0, end: 0 },
+                span: cond_span,
                 desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
             });
         }
@@ -166,11 +171,12 @@ impl<'a> IsiVisitor for TypeCk<'a> {
     }
 
     fn visit_while_loop(&mut self, while_loop: &isic_front::ast::WhileLoop) -> Self::Ret {
+        let cond_span = while_loop.cond.get_span();
         let cond_ty = self.visit_expr(&while_loop.cond)?;
 
         if cond_ty != IsiType::Bool {
             return Err(CheckError {
-                span: Span { start: 0, end: 0 },
+                span: cond_span,
                 desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
             });
         }
@@ -183,11 +189,12 @@ impl<'a> IsiVisitor for TypeCk<'a> {
     }
 
     fn visit_do_while_loop(&mut self, do_while_loop: &isic_front::ast::DoWhileLoop) -> Self::Ret {
+        let cond_span = do_while_loop.cond.get_span();
         let cond_ty = self.visit_expr(&do_while_loop.cond)?;
 
         if cond_ty != IsiType::Bool {
             return Err(CheckError {
-                span: Span { start: 0, end: 0 },
+                span: cond_span,
                 desc: format!("The type of conditionals must be Bool, found {:?} instead", cond_ty),
             });
         }
