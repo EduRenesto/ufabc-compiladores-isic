@@ -208,6 +208,8 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
             isic_front::ast::BinaryOp::Leq => "<=",
             isic_front::ast::BinaryOp::Eq => "==",
             isic_front::ast::BinaryOp::Neq => "!=",
+            isic_front::ast::BinaryOp::And => "&&",
+            isic_front::ast::BinaryOp::Or => "||",
         };
 
         write!(self.output, " {} ", op).unwrap();

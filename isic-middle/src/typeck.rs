@@ -129,6 +129,13 @@ impl<'a> IsiVisitor for TypeCk<'a> {
             | BinaryOp::Leq
             | BinaryOp::Eq
             | BinaryOp::Neq => Ok(IsiType::Bool),
+            BinaryOp::And | BinaryOp::Or => match left {
+                IsiType::Bool => Ok(IsiType::Bool),
+                _ => Err(CheckError {
+                    span,
+                    desc: format!("Operator {:?} is only defined between terms of type Bool", bexpr.0),
+                }),
+            }
         }
     }
 

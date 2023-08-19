@@ -79,6 +79,9 @@ peg::parser! {
         //    / id:ident() { ast::ArithExpr::Ident(id) }
 
         pub rule expr() -> ast::Expr = precedence!{
+            lhs:(@) ws() "&&" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::And, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "||" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Or, Box::new(lhs), Box::new(rhs))) }
+            --
             lhs:(@) ws() "+" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Add, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "-" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Sub, Box::new(lhs), Box::new(rhs))) }
             --

@@ -19,6 +19,10 @@ programa
         escreva("b maior ou igual 10").
     }
 
+    se (a < b && c < d || a < d) entao {
+       escreva("blabla").
+    }
+
     d := a * b + c * 10.
 
     escreva("Hello world").

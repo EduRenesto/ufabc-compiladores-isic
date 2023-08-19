@@ -160,6 +160,18 @@ impl<'a, R: BufRead, W: Write> IsiVisitor for IsiInterpreter<'a, R, W> {
                     _ => unreachable!() // porque a AST foi type-checked antes de chegar aqui
                 }
             },
+            BinaryOp::And => {
+                match (lhs, rhs) {
+                    (IsiValue::Bool(l), IsiValue::Bool(r)) => IsiValue::Bool(l && r),
+                    _ => unreachable!() // porque a AST foi type-checked antes de chegar aqui
+                }
+            },
+            BinaryOp::Or => {
+                match (lhs, rhs) {
+                    (IsiValue::Bool(l), IsiValue::Bool(r)) => IsiValue::Bool(l || r),
+                    _ => unreachable!() // porque a AST foi type-checked antes de chegar aqui
+                }
+            },
         }
     }
 
