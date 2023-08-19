@@ -1,6 +1,7 @@
 use std::io::Read;
 use std::{path::PathBuf, error::Error, fs::File};
 
+use ariadne::Report;
 use clap::Parser;
 use isic_back::cemitter::CEmitter;
 use isic_middle::typeck::TypeCk;
@@ -44,33 +45,40 @@ fn main() -> Result<(), Box<dyn Error>> {
     let parse_result = isic_front::parser::isilang_parser::program(&input_text);
 
     match parse_result {
-        Ok(ast) => {
-            //let emitter = CEmitter::new(&ast, &mut output);
-            //emitter.emit().unwrap();
-
+        Ok(ast) => 'a: {
             let mut typeck = TypeCk::new(&ast);
-            typeck.check().unwrap();
+            if let Err(errors) = typeck.check() {
+                //let report = Report::build(ariadne::ReportKind::Error, args.input_file, offset);
+                for desc in errors {
+                    println!("{:?}", desc);
+                }
+
+                break 'a;
+            }
 
             let mut usageck = UsageCk::new(&ast);
-            let warns = dbg!(usageck.check());
+            let warns = usageck.check();
+
+            for desc in warns {
+                println!("{:?}", desc);
+            }
 
             let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
             emitter.emit().unwrap();
         },
         Err(e) => {
-            // TODO: add expected tokens
-            let err = chic::Error::new("parse error")
-                .error(
-                    1,
-                    e.location.offset + e.location.line - 1,
-                    e.location.offset + e.location.line,
-                    &input_text,
-                    format!("expected: {}", e.expected)
-                )
-                .to_string();
+            // XXX
+            //let err = chic::Error::new("parse error")
+            //    .error(
+            //        1,
+            //        e.location.offset + e.location.line - 1,
+            //        e.location.offset + e.location.line,
+            //        &input_text,
+            //        format!("expected: {}", e.expected)
+            //    )
+            //    .to_string();
 
-            eprintln!("{}", err);
-            eprintln!("{:?}", e);
+            eprintln!("{}", e.expected);
         },
     }
 

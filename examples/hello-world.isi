@@ -8,7 +8,7 @@ programa
     f := 100,3.
 
     a := 123.
-    c := 666.
+    c := 666 + "eae".
 
     escreva("Digite um numero").
     leia(b).

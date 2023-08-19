@@ -52,7 +52,7 @@ peg::parser!{
 
         // TODO(edu): varias variaveis num declare só
         pub rule decl() -> ast::VarDecl
-            = t0: position!() "declare " vname:(ident()) (" "?) ":" (" "?) vtype:(ident()) "." t1:position!() {
+            = t0:position!() "declare " vname:(ident()) (" "?) ":" (" "?) vtype:(ident()) "." t1:position!() {
                 let span = Span { start: t0, end: t1 };
                 ast::VarDecl::new(vname, vtype, span)
             }

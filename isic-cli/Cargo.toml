@@ -11,4 +11,4 @@ isic-back = { path="../isic-back" }
 isic-middle = { path="../isic-middle" }
 
 clap = { version="4.3", features=["derive"] }
-chic = "1.2"
+ariadne = "0.3.0"
