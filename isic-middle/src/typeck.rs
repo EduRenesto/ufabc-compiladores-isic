@@ -2,26 +2,9 @@ use std::collections::HashMap;
 
 use isic_front::{ast::{IsiProgram, Ident, BinaryOp}, span::Span, visitor::{IsiVisitor, Visitable}};
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum IsiType {
-    Int,
-    Float,
-    String,
-    Bool,
-    Unit,
-}
-
-pub struct SymbolInfo {
-    pub ty: IsiType,
-    pub declaration: Span,
-    pub used: bool,
-}
-
-#[derive(Debug)]
-pub struct CheckError {
-    span: Span,
-    desc: String,
-}
+use crate::CheckError;
+use crate::SymbolInfo;
+use crate::IsiType;
 
 pub struct TypeCk<'a> {
     program: &'a IsiProgram,
@@ -100,7 +83,10 @@ impl<'a> IsiVisitor for TypeCk<'a> {
 
         self.sym_table.insert(
             decl.var_name.clone(),
-            SymbolInfo { ty, declaration: span, used: false }
+            SymbolInfo {
+                ty,
+                declaration: span,
+            }
         );
 
         Ok(ty)

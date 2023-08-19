@@ -4,6 +4,7 @@ use std::{path::PathBuf, error::Error, fs::File};
 use clap::Parser;
 use isic_back::cemitter::CEmitter;
 use isic_middle::typeck::TypeCk;
+use isic_middle::usageck::UsageCk;
 
 #[derive(Parser)]
 #[command()]
@@ -47,10 +48,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             //let emitter = CEmitter::new(&ast, &mut output);
             //emitter.emit().unwrap();
 
-            let mut checker = TypeCk::new(&ast);
-            checker.check().unwrap();
+            let mut typeck = TypeCk::new(&ast);
+            typeck.check().unwrap();
 
-            let emitter = CEmitter::new(&ast, &checker.sym_table, &mut output);
+            let mut usageck = UsageCk::new(&ast);
+            let warns = dbg!(usageck.check());
+
+            let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
             emitter.emit().unwrap();
         },
         Err(e) => {

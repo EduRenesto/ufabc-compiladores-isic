@@ -24,6 +24,7 @@ programa
     escreva("Hello world").
     escreva(a).
     escreva(b).
+    escreva(c).
 
     declare i: int.
     i := 0.

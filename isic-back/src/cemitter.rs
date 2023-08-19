@@ -4,7 +4,7 @@ use isic_front::{
     ast::{Ident, IsiProgram, Expr},
     visitor::IsiVisitor, span::Span,
 };
-use isic_middle::typeck::{SymbolInfo, CheckError, IsiType};
+use isic_middle::{SymbolInfo, CheckError, IsiType};
 
 use crate::{isi_error::IsiError, symbol::Symbol, builtins::BuiltinType};
 

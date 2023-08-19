@@ -23,6 +23,7 @@ else {
     printf("Hello world\n");
     printf("%d\n", a);
     printf("%d\n", b);
+    printf("%d\n", c);
     int i;
     i = 0;
 while ((i < 10)) {
