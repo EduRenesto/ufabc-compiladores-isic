@@ -1,0 +1,58 @@
+name: Deploy playground
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Update rust toolchain
+        run: |
+          rustup update
+          rustup install nightly
+          rustup target add wasm32-unknown-unknown
+
+      - name: Install wasmpack
+        run: |
+          yarn global add wasm-pack
+
+      - name: Build WASM package
+        run: |
+          pushd isic-playground-glue
+          wasm-pack build
+          popd
+
+      - name: Build distribution
+        run: |
+          pushd isic-playground
+          yarn build
+          popd
+
+      - name: Configura GH Pages
+        uses: actions/configure-pages@v2
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: './isic-playground/dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
