@@ -37,12 +37,20 @@ function App() {
   return (
     <>
       <h4>IsiLang Playground</h4>
+      <p>by Eduardo Renesto, for Professor Isidro's Compilers class.</p>
+      <p>
+        <strong>Importante:</strong> ainda não há um mecanismo pra esperar entrada
+        do usuário em runtime. Portanto, certifique-se de inserir as entradas na
+        janela <em>Interpreter</em> <strong>antes</strong> de clicar em executar.
+      </p>
       <WindowsWrapper>
         <EditorWindow onCompile={compile} onEvaluate={evaluate}/>
         <DiagnosticsWindow errors={errors} warns={warns}/>
         <CodeResultWindow code={codeOutput}/>
         <InterpreterWindow onInputChanged={setInterpreterInput} output={interpreterOutput}/>
       </WindowsWrapper>
+      <p>Check out my source code at <a href="https://github.com/EduRenesto/ufabc-compiladores-isic">GitHub</a>.</p>
+      <p>Made with love and stress, using Rust, WebAssembly and React.</p>
     </>
   );
 }

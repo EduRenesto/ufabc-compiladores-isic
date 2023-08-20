@@ -53,7 +53,21 @@ const FIBONACCI = `programa
 fimprog.
 `;
 
-const COLLATZ = `TODO`;
+const COLLATZ = `programa
+    declare n: int.
+    escreva("Digite um numero para iniciar a sequencia").
+    leia(n).
+
+    enquanto (n > 1) {
+        se (n % 2 == 0) entao {
+            n := n / 2.
+        } senao {
+            n := 3 * n + 1.
+        }
+        escreva(n).
+    }
+fimprog.
+`;
 
 const EXAMPLES = new Map([
     ["hello-world", HELLO_WORLD],
@@ -79,7 +93,7 @@ export const EditorWindow: React.FC<EditorProps> = (props: EditorProps) => {
                     <option value="hello-world">Hello world</option>
                     <option value="io">I/O</option>
                     <option value="fibonacci">Fibonacci</option>
-                    <option value="conditional">Conditionals</option>
+                    <option value="collatz">Collatz</option>
                 </Select>
                 <Button onClick={() => setText(EXAMPLES.get(example))}>Load example</Button>
             </ButtonsWrapper>
