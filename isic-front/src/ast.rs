@@ -68,6 +68,9 @@ impl VarDecl {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub struct MultiVarDecl(pub Vec<VarDecl>);
+
+#[derive(Debug, PartialEq, Eq)]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -199,7 +202,7 @@ pub struct DoWhileLoop {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Statement {
-    Decl(VarDecl),
+    Decl(MultiVarDecl),
     FnCall(FnCall),
     Assignment(Assignment),
     Conditional(Conditional),
@@ -223,6 +226,7 @@ impl_visitable!(FloatLiteral, visit_float_literal);
 impl_visitable!(StringLiteral, visit_string_literal);
 impl_visitable!(Ident, visit_ident);
 impl_visitable!(VarDecl, visit_decl);
+impl_visitable!(MultiVarDecl, visit_multi_decl);
 impl_visitable!(Expr, visit_expr);
 impl_visitable!(FnCall, visit_fn_call);
 impl_visitable!(Negation, visit_negation);

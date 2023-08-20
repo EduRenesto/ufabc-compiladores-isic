@@ -304,4 +304,12 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
 
         Ok(())
     }
+
+    fn visit_multi_decl(&mut self, decls: &isic_front::ast::MultiVarDecl) -> Self::Ret {
+        for decl in &decls.0 {
+            self.visit_decl(decl)?;
+        }
+
+        Ok(())
+    }
 }

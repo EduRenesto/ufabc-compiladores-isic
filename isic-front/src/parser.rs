@@ -50,11 +50,16 @@ peg::parser! {
                 ast::Ident::new(id, span)
             }
 
-        // TODO(edu): varias variaveis num declare só
-        pub rule decl() -> ast::VarDecl
-            = t0:position!() "declare " vname:(ident()) (" "?) ":" (" "?) vtype:(ident()) "." t1:position!() {
+        rule decl() -> ast::VarDecl
+            = t0:position!() vname:ident() ws() ":" ws() vtype:ident() t1:position!() {
                 let span = Span { start: t0, end: t1 };
+
                 ast::VarDecl::new(vname, vtype, span)
+            }
+
+        pub rule multidecl() -> ast::MultiVarDecl
+            = "declare " ws() decls:(decl() ++ ("," ws())) ws() "." {
+                ast::MultiVarDecl(decls)
             }
 
         pub rule binop() -> ast::BinaryOp
@@ -167,7 +172,7 @@ peg::parser! {
             }
 
         pub rule statement() -> ast::Statement
-            = d:decl()          { ast::Statement::Decl(d) }
+            = d:multidecl()     { ast::Statement::Decl(d) }
             / fc:fncall()       { ast::Statement::FnCall(fc) }
             / a:assignment()    { ast::Statement::Assignment(a) }
             / c:conditional()   { ast::Statement::Conditional(c) }

@@ -4,6 +4,7 @@
 
 int main() {
     int n;
+    float f;
     printf("Digite um numero para iniciar a sequencia\n");
     scanf("%d", &n);
     while ((n > 1)) {

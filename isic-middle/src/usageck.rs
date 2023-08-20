@@ -172,4 +172,10 @@ impl<'a> IsiVisitor for UsageCk<'a> {
     fn visit_negation(&mut self, neg: &isic_front::ast::Negation) -> Self::Ret {
         self.visit_expr(&neg.expr);
     }
+
+    fn visit_multi_decl(&mut self, decls: &isic_front::ast::MultiVarDecl) -> Self::Ret {
+        for decl in &decls.0 {
+            self.visit_decl(decl);
+        }
+    }
 }

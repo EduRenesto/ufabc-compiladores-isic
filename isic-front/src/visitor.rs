@@ -28,6 +28,8 @@ pub trait IsiVisitor {
 
     fn visit_decl(&mut self, decl: &VarDecl) -> Self::Ret;
 
+    fn visit_multi_decl(&mut self, decls: &MultiVarDecl) -> Self::Ret;
+
     fn visit_bin_expr(&mut self, bexpr: &BinExpr) -> Self::Ret;
 
     fn visit_expr(&mut self, expr: &Expr) -> Self::Ret {
@@ -57,7 +59,7 @@ pub trait IsiVisitor {
     fn visit_statement(&mut self, stmt: &Statement) -> Self::Ret {
         match stmt {
             Statement::Assignment(ass) => self.visit_assignment(ass),
-            Statement::Decl(decl) => self.visit_decl(decl),
+            Statement::Decl(mdecl) => self.visit_multi_decl(mdecl),
             Statement::FnCall(call) => self.visit_fn_call(call),
             Statement::Conditional(cond) => self.visit_conditional(cond),
             Statement::WhileLoop(l) => self.visit_while_loop(l),

@@ -253,4 +253,12 @@ impl<'a> IsiVisitor for TypeCk<'a> {
             Ok(IsiType::Bool)
         }
     }
+
+    fn visit_multi_decl(&mut self, decls: &isic_front::ast::MultiVarDecl) -> Self::Ret {
+        for decl in &decls.0 {
+            self.visit_decl(decl)?;
+        }
+
+        Ok(IsiType::Unit)
+    }
 }
