@@ -7,3 +7,5 @@ members = [
     "isic-playground-glue",
     "isic-cli"
 ]
+
+resolver = "1"

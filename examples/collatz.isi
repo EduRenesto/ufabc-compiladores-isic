@@ -3,6 +3,10 @@ programa
     escreva("Digite um numero para iniciar a sequencia").
     leia(n).
 
+    declare f: float.
+
+    f := "asotenhuaseo".
+
     enquanto (n > 1) {
         se (n % 2 == 0) entao {
             n := n / 2.
