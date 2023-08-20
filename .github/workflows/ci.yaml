@@ -11,10 +11,7 @@ on:
       - main
 
 jobs:
-  deploy_docs:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  deploy_playground:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -46,7 +43,7 @@ jobs:
           yarn build
           popd
 
-      - name: Deploy
+      - name: Deploy to Netlify
         run: |
           yarn global add netlify-cli
           netlify deploy --prod -d ./isic-playground/dist
