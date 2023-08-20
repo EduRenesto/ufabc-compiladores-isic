@@ -46,11 +46,10 @@ jobs:
           yarn build
           popd
 
-      - name: Deploy to netlify
-        uses: netlify/actions/cli@master
+      - name: Deploy
+        run: |
+          yarn global add netlify-cli
+          netlify deploy --prod -d ./isic-playground/dist
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.DEV_NETLIFY_SITE_ID }}
-        with:
-          args: deploy --dir=isic-playground/dist --prod
-          secrets: '["DEV_NETLIFY_AUTH_TOKEN", "NETLIFY_SITE_ID"]'
