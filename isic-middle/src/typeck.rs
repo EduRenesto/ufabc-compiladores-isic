@@ -228,4 +228,20 @@ impl<'a> IsiVisitor for TypeCk<'a> {
 
         Ok(IsiType::Unit)
     }
+
+    fn visit_negation(&mut self, neg: &isic_front::ast::Negation) -> Self::Ret {
+        let ty = self.visit_expr(&neg.expr)?;
+
+        if ty != IsiType::Bool {
+            Err(CheckError {
+                span: neg.get_span(),
+                desc: format!(
+                    "The negation operator can only be applied to terms of type Bool, found {:?} instead",
+                    ty,
+                )
+            })
+        } else {
+            Ok(IsiType::Bool)
+        }
+    }
 }

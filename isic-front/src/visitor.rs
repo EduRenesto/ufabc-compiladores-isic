@@ -38,10 +38,13 @@ pub trait IsiVisitor {
             Expr::ImmString(imm) => self.visit_string_literal(imm),
             Expr::BinExpr(bexp) => self.visit_bin_expr(bexp),
             Expr::FnCall(call) => self.visit_fn_call(call),
+            Expr::Negation(neg) => self.visit_negation(neg),
         }
     }
 
     fn visit_fn_call(&mut self, call: &FnCall) -> Self::Ret;
+
+    fn visit_negation(&mut self, neg: &Negation) -> Self::Ret;
 
     fn visit_assignment(&mut self, assignment: &Assignment) -> Self::Ret;
 

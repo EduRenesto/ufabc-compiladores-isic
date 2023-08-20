@@ -96,6 +96,25 @@ impl BinExpr {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub struct Negation {
+    pub expr: Box<Expr>,
+    pub span: Span,
+}
+
+impl Negation {
+    pub fn new(expr: Box<Expr>, span: Span) -> Negation {
+        Negation {
+            expr,
+            span,
+        }
+    }
+
+    pub fn get_span(&self) -> Span {
+        self.span.merge(&self.expr.get_span())
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub enum Expr {
     Ident(Ident),
     ImmInt(IntLiteral),
@@ -103,6 +122,7 @@ pub enum Expr {
     ImmString(StringLiteral),
     BinExpr(BinExpr),
     FnCall(FnCall),
+    Negation(Negation),
 }
 
 impl Expr {
@@ -114,6 +134,7 @@ impl Expr {
             Expr::ImmFloat(ref imm) => imm.1,
             Expr::BinExpr(ref bexpr) => bexpr.get_span(),
             Expr::FnCall(ref fcall) => fcall.get_span(),
+            Expr::Negation(ref neg) => neg.get_span(),
         }
     }
 }
@@ -203,6 +224,7 @@ impl_visitable!(Ident, visit_ident);
 impl_visitable!(VarDecl, visit_decl);
 impl_visitable!(Expr, visit_expr);
 impl_visitable!(FnCall, visit_fn_call);
+impl_visitable!(Negation, visit_negation);
 impl_visitable!(Assignment, visit_assignment);
 impl_visitable!(Conditional, visit_conditional);
 impl_visitable!(WhileLoop, visit_while_loop);

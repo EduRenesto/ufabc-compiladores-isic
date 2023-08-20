@@ -8,5 +8,9 @@ programa
     declare c: int.
     c := a * b.
 
+    se (!(a == b)) entao {
+       escreva(a).
+    }
+
     escreva(c).
 fimprog.

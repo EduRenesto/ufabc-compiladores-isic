@@ -78,6 +78,12 @@ peg::parser! {
         //    = n:num() { ast::ArithExpr::ImmInt(n) }
         //    / id:ident() { ast::ArithExpr::Ident(id) }
 
+        pub rule negation() -> ast::Negation
+            = t0:position!() "!" ws() t1:position!() e:expr() {
+                let span = Span { start: t0, end: t1 };
+                ast::Negation::new(Box::new(e), span)
+            }
+
         pub rule expr() -> ast::Expr = precedence!{
             lhs:(@) ws() "&&" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::And, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "||" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Or, Box::new(lhs), Box::new(rhs))) }
@@ -99,6 +105,8 @@ peg::parser! {
             n:num() { ast::Expr::ImmInt(n) }
             t:text() { ast::Expr::ImmString(t) }
             id:ident() { ast::Expr::Ident(id) }
+            --
+            neg:negation() { ast::Expr::Negation(neg) }
             --
             "(" ws() e:expr() ws() ")" { e }
         }

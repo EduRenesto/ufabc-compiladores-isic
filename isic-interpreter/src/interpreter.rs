@@ -264,4 +264,11 @@ impl<'a, R: BufRead, W: Write> IsiVisitor for IsiInterpreter<'a, R, W> {
 
         Ok(IsiValue::Unit)
     }
+
+    fn visit_negation(&mut self, neg: &isic_front::ast::Negation) -> Self::Ret {
+        match self.visit_expr(&neg.expr)? {
+            IsiValue::Bool(b) => Ok(IsiValue::Bool(!b)),
+            v => Err(format!("Unexpected: tried to negate a non-Bool value {:?}", v)),
+        }
+    }
 }

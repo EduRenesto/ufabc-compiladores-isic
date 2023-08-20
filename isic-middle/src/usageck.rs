@@ -168,4 +168,8 @@ impl<'a> IsiVisitor for UsageCk<'a> {
             self.visit_statement(stmt);
         }
     }
+
+    fn visit_negation(&mut self, neg: &isic_front::ast::Negation) -> Self::Ret {
+        self.visit_expr(&neg.expr);
+    }
 }

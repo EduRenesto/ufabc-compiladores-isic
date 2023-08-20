@@ -293,4 +293,14 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
 
         Ok(())
     }
+
+    fn visit_negation(&mut self, neg: &isic_front::ast::Negation) -> Self::Ret {
+        write!(self.output, "!(").unwrap();
+
+        self.visit_expr(&neg.expr)?;
+
+        write!(self.output, ")").unwrap();
+
+        Ok(())
+    }
 }
