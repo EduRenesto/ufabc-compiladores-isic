@@ -15,6 +15,16 @@ pub trait Visitable {
     fn visit<V: IsiVisitor + ?Sized>(&self, visitor: &mut V);
 }
 
+/// A trait IsiVisitor é uma das partes mais importantes do projeto. Todas as
+/// etapas do compilador são escritas como implementações diferentes do
+/// IsiVisitor. Desta forma, podemos extender o compilador muito facilmente,
+/// sem ter código espaguete, e podemos atribuir ao parser *somente* a função
+/// de criar a AST.
+///
+/// Esta trait contém uma função de visit para cada tipo de nó da AST.
+///
+/// Algumas funções já são fornecidas, especialmente nos nós que servem de
+/// ramificação, como o Expression e o Statement.
 pub trait IsiVisitor {
     type Ret;
 

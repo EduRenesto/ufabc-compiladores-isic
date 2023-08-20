@@ -9,12 +9,17 @@ use crate::CheckError;
 use crate::IsiType;
 use crate::SymbolInfo;
 
+/// O analisador de tipos do isic. Valida uma AST e garante
+/// que ela não possua erros de tipos.
 pub struct TypeCk<'a> {
+    /// Referencia ao programa a ser interpretado.
     program: &'a IsiProgram,
+    /// Tabela de tipos das variáveis do programa.
     pub sym_table: HashMap<Ident, SymbolInfo>,
 }
 
 impl<'a> TypeCk<'a> {
+    /// Cria um novo type checker.
     pub fn new(program: &'a IsiProgram) -> TypeCk<'a> {
         TypeCk {
             program,
@@ -22,6 +27,8 @@ impl<'a> TypeCk<'a> {
         }
     }
 
+    /// Faz a checagem de tipos da AST. Se não houverem erros, retorna Ok(()).
+    /// Caso hajam, retorna um vetor com os erros para serem reportados.
     pub fn check(&mut self) -> Result<(), Vec<CheckError>> {
         let prog = self.visit_program(self.program);
 

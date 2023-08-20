@@ -1,3 +1,7 @@
+//! # isic-middle
+//!
+//! Esta crate contém os validadores de AST do isic.
+
 use isic_front::span::Span;
 
 pub mod typeck;

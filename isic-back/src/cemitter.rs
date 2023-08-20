@@ -6,14 +6,28 @@ use isic_front::{
 };
 use isic_middle::{CheckError, IsiType, SymbolInfo};
 
+/// O emissor de código C da IsiLanguage.
+///
+/// Ele é implementado como um IsiVisitor, e cada função visitadora
+/// escreve na saída o código C equivalente ao nó sendo visitado.
+///
+/// **Importante.** O emissor **assume que a AST já foi validada,
+/// e não há erros de tipos**. Se uma AST inválida for passada para o
+/// emissor, o comportamento é não definido. Provavelmente ocorrerá
+/// um panic. Portanto, sempre valide a AST antes de usar o emissor.
 pub struct CEmitter<'a, W: Write> {
+    /// Referencia ao programa a ser interpretado.
     program: &'a IsiProgram,
+    /// Tabela de tipos das variáveis do programa.
     sym_table: &'a HashMap<Ident, SymbolInfo>,
+    /// Referência a saída onde o código C será escrito.
     output: &'a mut W,
+    /// Nível de identação atual do código C.
     id_level: usize,
 }
 
 impl<'a, W: Write> CEmitter<'a, W> {
+    /// Cria um novo emissor.
     pub fn new(
         program: &'a IsiProgram,
         sym_table: &'a HashMap<Ident, SymbolInfo>,
@@ -27,6 +41,7 @@ impl<'a, W: Write> CEmitter<'a, W> {
         }
     }
 
+    /// Emite o código C do programa associado.
     pub fn emit(mut self) -> Result<(), CheckError> {
         self.write_headers();
 
@@ -54,9 +69,6 @@ impl<'a, W: Write> CEmitter<'a, W> {
     }
 
     fn emit_print(&mut self, call: &isic_front::ast::FnCall) {
-        // TODO(edu): handle the case where the argument
-        // is not an ident or an immediate.
-
         let arg = &call.args[0];
 
         match arg {

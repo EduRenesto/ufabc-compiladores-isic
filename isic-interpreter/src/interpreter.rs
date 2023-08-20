@@ -24,15 +24,31 @@ impl Display for IsiValue {
     }
 }
 
+/// O interpretador da IsiLanguage.
+///
+/// Ele é implementado como um IsiVisitor, e cada função visitadora
+/// tenta avaliar qual o valor do nó atual, retornando Ok(valor) se
+/// o valor foi computado com sucesso, ou Err(e) se houve algum problema.
+///
+/// **Importante.** O interpretador **assume que a AST já foi validada,
+/// e não há erros de tipos**. Se uma AST inválida for passada para o
+/// interpretador, o comportamento é não definido. Provavelmente ocorrerá
+/// um panic. Portanto, sempre valide a AST antes de usar o interpretador.
 pub struct IsiInterpreter<'a, R: BufRead, W: Write> {
+    /// Referencia ao programa a ser interpretado.
     program: &'a IsiProgram,
+    /// Tabela de valores das variáveis do programa.
     sym_table: HashMap<Ident, IsiValue>,
+    /// Tabela de tipos das variáveis do programa.
     sym_types: HashMap<Ident, IsiType>, // apenas pra scan...
+    /// Referência ao stdin.
     stdin: &'a mut R,
+    /// Referência ao stdout.
     stdout: &'a mut W,
 }
 
 impl<'a, R: BufRead, W: Write> IsiInterpreter<'a, R, W> {
+    /// Cria um novo interpretador.
     pub fn new(program: &'a IsiProgram, stdin: &'a mut R, stdout: &'a mut W) -> Self {
         IsiInterpreter {
             program,
@@ -43,6 +59,7 @@ impl<'a, R: BufRead, W: Write> IsiInterpreter<'a, R, W> {
         }
     }
 
+    /// Executa o programa associado.
     pub fn exec(&mut self) {
         for i in self.visit_program(&self.program) {
             i.unwrap();

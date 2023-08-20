@@ -47,15 +47,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut input_text = String::new();
     input.read_to_string(&mut input_text)?;
 
+    // Faz o parse do código fonte.
     let parse_result = isic_front::parser::isilang_parser::program(&input_text);
 
     let mut reporter_src = Source::from(&input_text);
 
     match parse_result {
         Ok(ast) => 'a: {
+            // Código foi parseado e temos a AST com sucesso.
+
+            // Vamos primeiro rodar o type checker.
             let mut typeck = TypeCk::new(&ast);
             if let Err(errors) = typeck.check() {
-                //let report = Report::build(ariadne::ReportKind::Error, args.input_file, offset);
+                // Existem type errors. Vamos mostrar eles
+                // ao usuário e sair.
                 for desc in errors {
                     let offset = reporter_src.get_offset_line(desc.span.start).unwrap();
 
@@ -74,10 +79,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 break 'a;
             }
 
+            // Não houveram type errors -- vamos agora chamar
+            // o usage checker.
             let mut usageck = UsageCk::new(&ast);
             let warns = usageck.check();
 
             for desc in warns {
+                // Houveram warnings -- vamos mostrar eles ao usuário.
                 let offset = reporter_src.get_offset_line(desc.span.start).unwrap();
 
                 let _report = Report::build(ariadne::ReportKind::Warning, (), offset.1)
@@ -93,6 +101,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
 
             if args.execute {
+                // Se a flag -e foi passada, vamos executar no interpretador.
+
                 let mut stdin = std::io::stdin().lock();
                 let mut stdout = std::io::stdout();
 
@@ -100,21 +110,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 interpreter.exec();
             } else {
+                // Senao, vamos emitir o código C.
                 let emitter = CEmitter::new(&ast, &typeck.sym_table, &mut output);
                 emitter.emit().unwrap();
             }
         }
         Err(e) => {
-            // XXX
-            //let err = chic::Error::new("parse error")
-            //    .error(
-            //        1,
-            //        e.location.offset + e.location.line - 1,
-            //        e.location.offset + e.location.line,
-            //        &input_text,
-            //        format!("expected: {}", e.expected)
-            //    )
-            //    .to_string();
+            // Houve erro de sintaxe, então vamos reportar.
             let offset = reporter_src.get_offset_line(e.location.offset).unwrap();
 
             let _report = Report::build(ariadne::ReportKind::Error, (), offset.1)

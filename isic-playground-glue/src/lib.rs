@@ -1,3 +1,8 @@
+//! # isic-playground-glue
+//!
+//! Esta crate é apenas uma cola para exportar as facilidades
+//! do compilador isic para programas JavaScript por meio de WebAssembly.
+
 use std::io::Cursor;
 
 use ariadne::{Source, Report, Label};
@@ -27,6 +32,12 @@ pub fn init() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 }
 
+/// Recebe uma string com o conteúdo do programa, chama
+/// a infra do isic, e retorna um objeto contendo o código C
+/// gerado ou os erros e warning resultantes.
+///
+/// Efetivamente, repete o código do isic-cli, mas mastigado
+/// para ser facilmente consumido por WASM.
 #[wasm_bindgen]
 pub fn compile_to_c(input_text: &str) -> JsValue {
     let parse_result = isilang_parser::program(input_text);
@@ -125,6 +136,12 @@ pub fn compile_to_c(input_text: &str) -> JsValue {
     serde_wasm_bindgen::to_value(&result).unwrap()
 }
 
+/// Recebe uma string com o conteúdo do programa e uma com a entrada padrão do
+/// programa, chama a infra do isic, e retorna um objeto contendo a saída do
+/// programa executado ou os erros e warning resultantes.
+///
+/// Efetivamente, repete o código do isic-cli, mas mastigado
+/// para ser facilmente consumido por WASM.
 #[wasm_bindgen]
 pub fn run_interpreter(code: &str, input_text: &str) -> JsValue {
     let parse_result = isilang_parser::program(code);

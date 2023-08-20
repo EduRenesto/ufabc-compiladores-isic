@@ -1,3 +1,9 @@
+//! # isic_front::ast
+//!
+//! Este módulo contém a declaração da AST usada no isic.
+//!
+//! A raiz da AST é o nó IsiProgram, que contém uma lista de statements.
+
 use std::hash::Hash;
 
 use crate::{

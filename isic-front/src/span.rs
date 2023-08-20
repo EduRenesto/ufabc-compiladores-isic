@@ -1,4 +1,5 @@
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default, Hash)]
+/// A estrutura Span representa uma localização no código fonte.
 pub struct Span {
     pub start: usize,
     pub end: usize,

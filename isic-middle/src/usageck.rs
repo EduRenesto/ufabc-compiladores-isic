@@ -15,12 +15,22 @@ struct UsageInfo {
     uses: Vec<Span>,
 }
 
+/// O analisador de uso do isic. Valida uma AST e reporta se ela
+/// contém os seguintes problemas:
+///
+/// - Declaração sem uso
+/// - Escrita sem leitura
+/// - Declaração dupla
+/// - Leitura sem escrita
 pub struct UsageCk<'a> {
+    /// Referencia ao programa a ser interpretado.
     program: &'a IsiProgram,
+    /// Tabela de estatísticas de uso das variáveis do programa.
     sym_table: HashMap<Ident, UsageInfo>,
 }
 
 impl<'a> UsageCk<'a> {
+    /// Cria um novo usage checker.
     pub fn new(program: &'a IsiProgram) -> UsageCk<'a> {
         UsageCk {
             program,
@@ -28,6 +38,8 @@ impl<'a> UsageCk<'a> {
         }
     }
 
+    /// Faz a checagem de uso da AST. Retorna um vetor com os problemas
+    /// encontrados, possivelmente vazio.
     pub fn check(&mut self) -> Vec<CheckError> {
         self.visit_program(&self.program);
 
