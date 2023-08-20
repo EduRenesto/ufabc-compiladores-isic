@@ -123,6 +123,15 @@ impl<'a> IsiVisitor for TypeCk<'a> {
                 }),
                 _ => Ok(left),
             },
+            BinaryOp::Mod => match left {
+                IsiType::Int => Ok(IsiType::Int),
+                _ => Err(CheckError {
+                    span,
+                    desc: format!(
+                        "Operator % is only defined between terms of type Int"
+                    ),
+                }),
+            }
             BinaryOp::Gt
             | BinaryOp::Lt
             | BinaryOp::Geq

@@ -81,6 +81,7 @@ pub enum BinaryOp {
     Neq,
     And,
     Or,
+    Mod,
 }
 
 #[derive(Debug, PartialEq, Eq)]

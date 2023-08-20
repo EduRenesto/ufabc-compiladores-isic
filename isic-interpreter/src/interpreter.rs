@@ -124,6 +124,12 @@ impl<'a, R: BufRead, W: Write> IsiVisitor for IsiInterpreter<'a, R, W> {
                     (l, r) => Err(format!("Unexpected: wrong values for operation {:?}: {:?} and {:?}", bexpr.0, l, r))
                 }
             },
+            BinaryOp::Mod => {
+                match (lhs, rhs) {
+                    (IsiValue::Int(l), IsiValue::Int(r)) => Ok(IsiValue::Int(l % r)),
+                    (l, r) => Err(format!("Unexpected: wrong values for operation {:?}: {:?} and {:?}", bexpr.0, l, r))
+                }
+            },
             BinaryOp::Gt => {
                 match (lhs, rhs) {
                     (IsiValue::Int(l), IsiValue::Int(r)) => Ok(IsiValue::Bool(l > r)),

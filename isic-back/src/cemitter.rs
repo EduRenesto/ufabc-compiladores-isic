@@ -202,6 +202,7 @@ impl<'a, W: Write> IsiVisitor for CEmitter<'a, W> {
             isic_front::ast::BinaryOp::Sub => "-",
             isic_front::ast::BinaryOp::Mul => "*",
             isic_front::ast::BinaryOp::Div => "/",
+            isic_front::ast::BinaryOp::Mod => "%",
             isic_front::ast::BinaryOp::Gt => ">",
             isic_front::ast::BinaryOp::Lt => "<",
             isic_front::ast::BinaryOp::Geq => ">=",

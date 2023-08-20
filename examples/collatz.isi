@@ -1,0 +1,14 @@
+programa
+    declare n: int.
+    escreva("Digite um numero para iniciar a sequencia").
+    leia(n).
+
+    enquanto (n > 1) {
+        se (n % 2 == 0) entao {
+            n := n / 2.
+        } senao {
+            n := 3 * n + 1.
+        }
+        escreva(n).
+    }
+fimprog.

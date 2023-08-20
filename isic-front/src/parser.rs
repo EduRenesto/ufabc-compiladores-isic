@@ -88,18 +88,20 @@ peg::parser! {
             lhs:(@) ws() "&&" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::And, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "||" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Or, Box::new(lhs), Box::new(rhs))) }
             --
-            lhs:(@) ws() "+" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Add, Box::new(lhs), Box::new(rhs))) }
-            lhs:(@) ws() "-" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Sub, Box::new(lhs), Box::new(rhs))) }
-            --
-            lhs:(@) ws() "*" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Mul, Box::new(lhs), Box::new(rhs))) }
-            lhs:(@) ws() "/" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Div, Box::new(lhs), Box::new(rhs))) }
-            --
             lhs:(@) ws() "<" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Lt, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() ">" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Gt, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "<=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Leq, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() ">=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Geq, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "==" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Eq, Box::new(lhs), Box::new(rhs))) }
             lhs:(@) ws() "!=" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Neq, Box::new(lhs), Box::new(rhs))) }
+            --
+            lhs:(@) ws() "+" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Add, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "-" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Sub, Box::new(lhs), Box::new(rhs))) }
+            --
+            lhs:(@) ws() "*" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Mul, Box::new(lhs), Box::new(rhs))) }
+            lhs:(@) ws() "/" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Div, Box::new(lhs), Box::new(rhs))) }
+            --
+            lhs:(@) ws() "%" ws() rhs:@ { ast::Expr::BinExpr(ast::BinExpr(ast::BinaryOp::Mod, Box::new(lhs), Box::new(rhs))) }
             --
             f:numf() { ast::Expr::ImmFloat(f) }
             n:num() { ast::Expr::ImmInt(n) }
